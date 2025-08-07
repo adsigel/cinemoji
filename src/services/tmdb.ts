@@ -19,14 +19,25 @@ export interface MovieSuggestion {
   originalTitle: string; // "Jurassic Park"
 }
 
+// Helper function to normalize search queries for better matching
+const normalizeQuery = (query: string): string => {
+  return query
+    .replace(/wall[\s\-·•]?e/gi, 'WALL-E') // Handle Wall-E variations
+    .replace(/[\-·•]/g, '-') // Normalize different dash characters
+    .trim();
+};
+
 export async function searchMovies(query: string): Promise<MovieSuggestion[]> {
   if (!query || query.length < 2) {
     return [];
   }
 
   try {
+    // Normalize the query to handle edge cases
+    const normalizedQuery = normalizeQuery(query);
+    
     const response = await fetch(
-      `${TMDB_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`,
+      `${TMDB_BASE_URL}/search/movie?query=${encodeURIComponent(normalizedQuery)}&include_adult=false&language=en-US&page=1`,
       {
         headers: {
           'Authorization': `Bearer ${TMDB_READ_ACCESS_TOKEN}`,
@@ -42,18 +53,29 @@ export async function searchMovies(query: string): Promise<MovieSuggestion[]> {
 
     const data: TMDbSearchResponse = await response.json();
     
-    // Return top 8 movie suggestions with years, sorted by popularity
-    return data.results
-      .filter(movie => movie.title && movie.release_date) // Only movies with title and date
-      .sort((a, b) => b.popularity - a.popularity)
-      .slice(0, 8)
-      .map(movie => {
-        const year = new Date(movie.release_date).getFullYear();
-        return {
-          displayTitle: `${movie.title} (${year})`,
-          originalTitle: movie.title
-        };
-      });
+    // Filter and sort results
+    const validMovies = data.results
+      .filter(movie => {
+        // Only include movies with title, release date, and reasonable popularity
+        return movie.title && 
+               movie.release_date && 
+               movie.popularity > 0 &&
+               movie.release_date.length >= 4; // Valid year format
+      })
+      .sort((a, b) => {
+        // Sort by popularity (descending)
+        return b.popularity - a.popularity;
+      })
+      .slice(0, 8); // Top 8 results
+    
+    // Convert to MovieSuggestion format
+    return validMovies.map(movie => {
+      const year = new Date(movie.release_date).getFullYear();
+      return {
+        displayTitle: `${movie.title} (${year})`,
+        originalTitle: movie.title
+      };
+    });
       
   } catch (error) {
     console.error('Error searching movies:', error);

@@ -16,6 +16,8 @@ function App() {
   const [suggestions, setSuggestions] = useState<MovieSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
+  const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
 
   useEffect(() => {
     const todaysPuzzle = getTodaysPuzzle()
@@ -56,9 +58,18 @@ function App() {
   const stars = calculateStars(guesses.length + 1)
   const maxGuesses = 5
 
+  // Helper function to remove year from movie title
+  const removeYear = (title: string): string => {
+    return title.replace(/\s*\(\d{4}\)\s*$/, '').trim()
+  }
+
   const handleGuess = (guessText?: string, originalTitle?: string) => {
     // Use originalTitle if provided (from suggestion click), otherwise use guessText or guess
-    const finalGuess = originalTitle || guessText || guess
+    let finalGuess = originalTitle || guessText || guess
+    
+    // Remove year from guess if it exists
+    finalGuess = removeYear(finalGuess)
+    
     if (!puzzle || !finalGuess.trim() || isWon || isLost) return
 
     const newGuesses = [...guesses, finalGuess.trim()]
@@ -77,6 +88,7 @@ function App() {
   }
 
   const handleSuggestionClick = (suggestion: MovieSuggestion) => {
+    // Set the display title (with year) in the input field
     setGuess(suggestion.displayTitle)
     setShowSuggestions(false)
     // Don't auto-submit, let user click Guess button
@@ -86,6 +98,12 @@ function App() {
     if (!revealedHints.includes(hintType)) {
       setRevealedHints([...revealedHints, hintType])
     }
+  }
+
+  const showToastMessage = (message: string) => {
+    setToastMessage(message)
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 3000)
   }
 
   const handleShare = async () => {
@@ -116,10 +134,10 @@ function App() {
       }
     }
 
-    // Fallback to clipboard
+    // Fallback to clipboard with custom toast
     try {
       await navigator.clipboard.writeText(shareText)
-      alert('Results copied to clipboard! 📋')
+      showToastMessage('Results copied to clipboard! 📋')
     } catch (err) {
       // Final fallback to showing the text
       prompt('Copy this text to share:', shareText)
@@ -154,9 +172,33 @@ function App() {
     )
   }
 
+  // Separate tagline from other hints for layout
+  const regularHints = (Object.keys(HINT_INFO) as HintType[]).filter(hint => hint !== 'tagline')
+  const taglineHint = 'tagline' as HintType
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
       <div style={{ maxWidth: '28rem', margin: '0 auto', padding: '1rem' }}>
+        {/* Custom Toast Notification */}
+        {showToast && (
+          <div style={{
+            position: 'fixed',
+            top: '2rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#10b981',
+            color: 'white',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '0.75rem',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            zIndex: 1000,
+            fontWeight: '500',
+            fontSize: '0.9rem'
+          }}>
+            {toastMessage}
+          </div>
+        )}
+
         {/* Header */}
         <header style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#6366f1', marginBottom: '0.5rem' }}>
@@ -210,7 +252,13 @@ function App() {
                 type="text"
                 value={guess}
                 onChange={(e) => setGuess(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleGuess()}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    // When user presses Enter, use the original title if it's a suggestion
+                    const matchingSuggestion = suggestions.find(s => s.displayTitle === guess)
+                    handleGuess(guess, matchingSuggestion?.originalTitle)
+                  }
+                }}
                 onFocus={() => setShowSuggestions(suggestions.length > 0)}
                 placeholder="Enter your guess..."
                 style={{ 
@@ -224,7 +272,11 @@ function App() {
                 }}
               />
               <button
-                onClick={() => handleGuess()}
+                onClick={() => {
+                  // When user clicks Guess, use the original title if it's a suggestion
+                  const matchingSuggestion = suggestions.find(s => s.displayTitle === guess)
+                  handleGuess(guess, matchingSuggestion?.originalTitle)
+                }}
                 disabled={!guess.trim()}
                 style={{ 
                   padding: '1rem 1.5rem', 
@@ -307,8 +359,10 @@ function App() {
         {/* Hint Buttons */}
         <div style={{ marginBottom: '1.5rem' }}>
           <h3 style={{ fontWeight: '600', color: '#374151', marginBottom: '0.75rem' }}>Hints:</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
-            {(Object.keys(HINT_INFO) as HintType[]).map((hintType) => {
+          
+          {/* Regular hints in 2x2 grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', marginBottom: '0.75rem' }}>
+            {regularHints.map((hintType) => {
               const hintInfo = HINT_INFO[hintType]
               const isRevealed = revealedHints.includes(hintType)
               const hintText = isRevealed ? puzzle.hints[hintType] : hintInfo.label
@@ -346,6 +400,49 @@ function App() {
                 </button>
               )
             })}
+          </div>
+
+          {/* Tagline button - full width and centered */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            {(() => {
+              const hintInfo = HINT_INFO[taglineHint]
+              const isRevealed = revealedHints.includes(taglineHint)
+              const hintText = isRevealed ? puzzle.hints[taglineHint] : hintInfo.label
+              
+              return (
+                <button
+                  onClick={() => handleHint(taglineHint)}
+                  disabled={isRevealed}
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'flex-start', 
+                    gap: '0.5rem', 
+                    padding: '0.75rem', 
+                    backgroundColor: isRevealed ? '#f3f4f6' : 'white', 
+                    border: `2px solid ${isRevealed ? '#d1d5db' : '#e5e7eb'}`, 
+                    borderRadius: '0.75rem', 
+                    fontSize: '0.875rem', 
+                    fontWeight: '500',
+                    cursor: isRevealed ? 'not-allowed' : 'pointer',
+                    textAlign: 'left',
+                    minHeight: '3rem',
+                    boxShadow: isRevealed ? 'none' : '0 1px 2px rgba(0,0,0,0.05)',
+                    width: '100%',
+                    maxWidth: '20rem'
+                  }}
+                >
+                  <span style={{ fontSize: '1rem', flexShrink: 0 }}>{hintInfo.emoji}</span>
+                  <span style={{ 
+                    color: isRevealed ? '#4b5563' : '#374151',
+                    lineHeight: '1.3',
+                    wordBreak: 'break-word'
+                  }}>
+                    {hintText}
+                  </span>
+                </button>
+              )
+            })()}
           </div>
         </div>
 
