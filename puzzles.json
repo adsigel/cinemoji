@@ -1,0 +1,144 @@
+{
+  "puzzles": [
+    {
+      "id": 1,
+      "movie_title": "Speed",
+      "emoji_plot": "🚍💣",
+      "difficulty": "easy",
+      "notes": "Simple and iconic - bus + bomb"
+    },
+    {
+      "id": 2,
+      "movie_title": "Psycho",
+      "emoji_plot": "👱🚿👩🔪👣",
+      "difficulty": "medium",
+      "notes": "Classic thriller - shower scene reference"
+    },
+    {
+      "id": 3,
+      "movie_title": "Poltergeist",
+      "emoji_plot": "🏠👩📺💥🌀💡🔆💡👵🛀👩👿💫🌀💡💥🚫🚘🏥",
+      "difficulty": "hard",
+      "notes": "Complex sequence - supernatural horror elements"
+    },
+    {
+      "id": 4,
+      "movie_title": "Inception",
+      "emoji_plot": "🇯🇵😴➡️😴💰✈️😴😴😴➡️😴➡️😴☔️🚄🚓☔️😴🔫➡️😴❄️😴🔫🏢🔙😴➡️👫😳",
+      "difficulty": "hard",
+      "notes": "Dream layers and complex plot - very creative"
+    },
+    {
+      "id": 5,
+      "movie_title": "The Three Amigos",
+      "emoji_plot": "🇲🇽🌵⛪️😄😀😃🐎🎤😚🌳🎤🔥🏕👀✈️🐎🎉🎂👨🔫🔫🔫💃",
+      "difficulty": "hard",
+      "notes": "Comedy western - detailed story sequence"
+    },
+    {
+      "id": 6,
+      "movie_title": "The Shawshank Redemption",
+      "emoji_plot": "👦🏢😐😬😏📝📚🎧🔨🔦💩😅💰👴🔫⛵️🌅",
+      "difficulty": "medium",
+      "notes": "Prison drama - escape sequence"
+    },
+    {
+      "id": 7,
+      "movie_title": "Ferris Bueller's Day Off",
+      "emoji_plot": "😰😩😉🚗🙋🏙🍸🎨⚾️🎤🎉🚗💥👟😎",
+      "difficulty": "medium",
+      "notes": "Teen comedy - day in Chicago"
+    },
+    {
+      "id": 8,
+      "movie_title": "Back to the Future",
+      "emoji_plot": "⏰⏰🎸😀👴⏱🚙⌛️⏳😀👦🚙💩🎸😘🌩⏳⌛️😊",
+      "difficulty": "easy",
+      "notes": "Time travel classic - lots of time symbols"
+    },
+    {
+      "id": 9,
+      "movie_title": "You've Got Mail",
+      "emoji_plot": "👦👧💻📚🌹💞",
+      "difficulty": "easy",
+      "notes": "Rom-com - simple and sweet"
+    },
+    {
+      "id": 10,
+      "movie_title": "Big",
+      "emoji_plot": "👦🖥🎠👳💤👨🌠🎹🤖👨‍❤️‍💋‍👨🎮👳👦",
+      "difficulty": "medium",
+      "notes": "Tom Hanks classic - boy becomes man"
+    },
+    {
+      "id": 11,
+      "movie_title": "Ace Ventura: Pet Detective",
+      "emoji_plot": "😀🔍🐶🚙🏈🐬⁉️👩🔀👨😖🐬🔍😉",
+      "difficulty": "medium",
+      "notes": "Comedy - pet detective theme clear"
+    },
+    {
+      "id": 12,
+      "movie_title": "WALL-E",
+      "emoji_plot": "🌏🤖🌱😍🚀🌌💑🌎",
+      "difficulty": "easy",
+      "notes": "Pixar - robot love story"
+    },
+    {
+      "id": 13,
+      "movie_title": "The Wizard of Oz",
+      "emoji_plot": "🌪🏠👧🌽🦁🤖🛣🐒😈💦👠🏠",
+      "difficulty": "easy",
+      "notes": "Classic - tornado, characters, ruby slippers"
+    },
+    {
+      "id": 14,
+      "movie_title": "Pulp Fiction",
+      "emoji_plot": "👨🏻👨🏿🍔🔫💼👨🏻👩💃😵💉😳⌚️🚗💥🤐🗡🚗🔫🐺👦👧💰",
+      "difficulty": "hard",
+      "notes": "Complex narrative - multiple storylines"
+    },
+    {
+      "id": 15,
+      "movie_title": "Forrest Gump",
+      "emoji_plot": "🚍👦🏃🏈👨👨🏿🇻🇳🏓🍤🏃👧💀",
+      "difficulty": "medium",
+      "notes": "Life story - running, sports, Vietnam, shrimp"
+    },
+    {
+      "id": 16,
+      "movie_title": "The Matrix",
+      "emoji_plot": "👦☎️👨🏿💊🖥🌏🤖🔫🔫🚁🔫🔫",
+      "difficulty": "medium",
+      "notes": "Sci-fi classic - pills, computers, action"
+    },
+    {
+      "id": 17,
+      "movie_title": "The Usual Suspects",
+      "emoji_plot": "🚢🔥🔙👮😜😒😡😯👻🔥🔫📠☕️💥👣😏",
+      "difficulty": "hard",
+      "notes": "Crime thriller - complex mystery"
+    },
+    {
+      "id": 18,
+      "movie_title": "Ghostbusters",
+      "emoji_plot": "📚👻👵🏻😏🤓😳👩🏻🎻👻👩🏻➡️🐶🌩👻🔫😏👩🏻💏",
+      "difficulty": "medium",
+      "notes": "Supernatural comedy - ghosts and proton packs"
+    },
+    {
+      "id": 19,
+      "movie_title": "Mrs. Doubtfire",
+      "emoji_plot": "👨‍👩‍👧‍👦🐐🐴🎂🎉💔👨➡️👵🏻❤️👧👧👦",
+      "difficulty": "medium",
+      "notes": "Family comedy - man disguised as nanny"
+    },
+    {
+      "id": 20,
+      "movie_title": "Se7en",
+      "emoji_plot": "👮🏻👮🏿🍝💀🔪💀🛏😖🔪💀💊💀🚔📦🔫💀💀",
+      "difficulty": "hard",
+      "notes": "Dark thriller - seven deadly sins murders"
+    }
+  ]
+} 

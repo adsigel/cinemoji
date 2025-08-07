@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-game bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .game-container {
+    @apply max-w-md mx-auto px-4 py-6;
+  }
+  
+  .emoji-display {
+    @apply text-4xl md:text-5xl text-center p-6 bg-white rounded-2xl shadow-sm border-2 border-gray-100;
+  }
+  
+  .hint-button {
+    @apply flex items-center justify-center gap-2 p-3 bg-white border-2 border-gray-200 rounded-xl text-sm font-medium hover:border-movie-purple hover:bg-purple-50 transition-colors;
+  }
+  
+  .hint-button:disabled {
+    @apply opacity-50 cursor-not-allowed hover:border-gray-200 hover:bg-white;
+  }
+  
+  .star-display {
+    @apply text-2xl;
+  }
+  
+  .game-input {
+    @apply w-full p-4 text-lg border-2 border-gray-200 rounded-xl focus:border-movie-purple focus:outline-none;
+  }
+}
