@@ -33,13 +33,22 @@ export interface HintInfo {
 }
 
 export interface UserStats {
-  currentStreak: number;
-  longestStreak: number;
   gamesPlayed: number;
   gamesWon: number;
-  perfectDays: number;
-  averageStars: number;
-  hintUsage: Record<HintType, number>;
+  totalStars: number;
+  hintsUsed: { [key in HintType]: number };
+  perfectDays: number; // 5-star wins with no hints
+  lastPlayed?: string; // ISO date string for streak calculation
+  firstPlayed?: string; // ISO date string for account age
+}
+
+export interface GameResult {
+  puzzleId: number;
+  date: string; // ISO date string
+  completed: boolean;
+  stars: number;
+  hintsUsed: HintType[];
+  attempts: number;
 }
 
 export interface ShareData {

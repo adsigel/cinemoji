@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { getTodaysPuzzle, getPuzzleNumber } from './utils/dateUtils'
+import { getTodaysPuzzle, getPuzzleNumber, getTodayDateString } from './utils/dateUtils'
 import { isCorrectGuess, calculateStars, HINT_INFO, formatShareText } from './utils/gameLogic'
 import { searchMovies, debounce, type MovieSuggestion } from './services/tmdb'
-import type { Puzzle, HintType } from './types/game'
+import { recordGameResult, getUserStats, getCalculatedStats } from './utils/localStorage'
+import type { Puzzle, HintType, UserStats, GameResult } from './types/game'
 import './App.css'
 
 function App() {
@@ -18,11 +19,35 @@ function App() {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
+  const [userStats, setUserStats] = useState<UserStats | null>(null)
+  const [gameRecorded, setGameRecorded] = useState(false)
 
   useEffect(() => {
     const todaysPuzzle = getTodaysPuzzle()
     setPuzzle(todaysPuzzle)
+    
+    // Load user stats
+    const stats = getUserStats()
+    setUserStats(stats)
   }, [])
+
+  // Record game result when game ends
+  useEffect(() => {
+    if ((isWon || isLost) && puzzle && !gameRecorded) {
+      const gameResult: GameResult = {
+        puzzleId: puzzle.id,
+        date: getTodayDateString(),
+        completed: isWon,
+        stars: isWon ? calculateStars(guesses.length) : 0,
+        hintsUsed: revealedHints,
+        attempts: guesses.length
+      }
+      
+      const newStats = recordGameResult(gameResult)
+      setUserStats(newStats)
+      setGameRecorded(true)
+    }
+  }, [isWon, isLost, puzzle, guesses.length, revealedHints, gameRecorded])
 
   // Debounced TMDb search function
   const debouncedSearch = useCallback(
@@ -464,6 +489,46 @@ function App() {
             >
               Share Results 📋
             </button>
+          </div>
+        )}
+
+        {/* Statistics Display */}
+        {userStats && userStats.gamesPlayed > 0 && (
+          <div style={{ 
+            marginTop: '2rem', 
+            padding: '1rem', 
+            backgroundColor: 'white', 
+            borderRadius: '0.75rem', 
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)' 
+          }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#374151', marginBottom: '0.75rem', textAlign: 'center' }}>
+              Your Stats
+            </h3>
+            {(() => {
+              const calculatedStats = getCalculatedStats(userStats)
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', fontSize: '0.875rem' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#6366f1' }}>
+                      {userStats.gamesPlayed}
+                    </div>
+                    <div style={{ color: '#6b7280' }}>Played</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#10b981' }}>
+                      {calculatedStats.winRate}%
+                    </div>
+                    <div style={{ color: '#6b7280' }}>Win Rate</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f59e0b' }}>
+                      {calculatedStats.averageStars}⭐
+                    </div>
+                    <div style={{ color: '#6b7280' }}>Avg Stars</div>
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         )}
 
