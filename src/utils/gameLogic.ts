@@ -1,7 +1,7 @@
 import type { HintType, HintInfo } from '../types/game';
 
 export const HINT_INFO: Record<HintType, HintInfo> = {
-  actor1: { type: 'actor1', emoji: '🎬', label: 'Actor' },
+  actor1: { type: 'actor1', emoji: '🎭', label: 'Actor' },
   actor2: { type: 'actor2', emoji: '🎭', label: 'Actor' },
   year: { type: 'year', emoji: '📆', label: 'Year' },
   director: { type: 'director', emoji: '🎥', label: 'Director' },

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getTodaysPuzzle, getPuzzleNumber } from './utils/dateUtils'
 import { isCorrectGuess, calculateStars, HINT_INFO, formatShareText } from './utils/gameLogic'
+import { puzzles } from './data/puzzles'
 import type { Puzzle, HintType } from './types/game'
 import './App.css'
 
@@ -12,22 +13,40 @@ function App() {
   const [isWon, setIsWon] = useState(false)
   const [isLost, setIsLost] = useState(false)
   const [showShare, setShowShare] = useState(false)
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
   useEffect(() => {
     const todaysPuzzle = getTodaysPuzzle()
     setPuzzle(todaysPuzzle)
   }, [])
 
+  // Auto-suggest functionality
+  useEffect(() => {
+    if (guess.length >= 2) {
+      const movieTitles = puzzles.map(p => p.movie_title)
+      const filtered = movieTitles.filter(title => 
+        title.toLowerCase().includes(guess.toLowerCase())
+      ).slice(0, 5)
+      setSuggestions(filtered)
+      setShowSuggestions(filtered.length > 0 && !isWon && !isLost)
+    } else {
+      setSuggestions([])
+      setShowSuggestions(false)
+    }
+  }, [guess, isWon, isLost])
+
   const stars = calculateStars(guesses.length + 1)
   const maxGuesses = 5
 
-  const handleGuess = () => {
-    if (!puzzle || !guess.trim() || isWon || isLost) return
+  const handleGuess = (guessText?: string) => {
+    const finalGuess = guessText || guess
+    if (!puzzle || !finalGuess.trim() || isWon || isLost) return
 
-    const newGuesses = [...guesses, guess.trim()]
+    const newGuesses = [...guesses, finalGuess.trim()]
     setGuesses(newGuesses)
 
-    if (isCorrectGuess(guess, puzzle.movie_title)) {
+    if (isCorrectGuess(finalGuess, puzzle.movie_title)) {
       setIsWon(true)
       setShowShare(true)
     } else if (newGuesses.length >= maxGuesses) {
@@ -36,6 +55,13 @@ function App() {
     }
 
     setGuess('')
+    setShowSuggestions(false)
+  }
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setGuess(suggestion)
+    setShowSuggestions(false)
+    handleGuess(suggestion)
   }
 
   const handleHint = (hintType: HintType) => {
@@ -55,97 +81,171 @@ function App() {
       'movemoji.vercel.app'
     )
 
-    if (navigator.share) {
-      await navigator.share({ text: shareText })
-    } else {
+    // Always try clipboard first, then native share as fallback
+    try {
       await navigator.clipboard.writeText(shareText)
-      alert('Results copied to clipboard!')
+      alert('Results copied to clipboard! 📋')
+    } catch (err) {
+      if (navigator.share) {
+        try {
+          await navigator.share({ text: shareText })
+        } catch (shareErr) {
+          // Fallback to showing the text
+          prompt('Copy this text to share:', shareText)
+        }
+      } else {
+        prompt('Copy this text to share:', shareText)
+      }
     }
   }
 
   const renderStars = () => {
-    if (isLost) return <span className="star-display">💔</span>
+    if (isLost) return <span style={{ fontSize: '1.5rem' }}>💔</span>
     
     const starCount = isWon ? calculateStars(guesses.length) : stars
     const starEmojis = '⭐'.repeat(Math.max(0, starCount))
     const hintEmojis = revealedHints.map(hint => HINT_INFO[hint].emoji).join('')
     
     return (
-      <span className="star-display">
+      <span style={{ fontSize: '1.5rem' }}>
         {starEmojis}{hintEmojis}
       </span>
     )
   }
 
   if (!puzzle) {
-    return <div className="game-container">Loading puzzle...</div>
+    return <div style={{ maxWidth: '28rem', margin: '0 auto', padding: '1rem' }}>Loading puzzle...</div>
   }
 
   return (
-    <div className="game-container">
+    <div style={{ maxWidth: '28rem', margin: '0 auto', padding: '1rem', minHeight: '100vh' }}>
       {/* Header */}
-      <header className="text-center mb-6">
-        <h1 className="text-3xl font-bold text-movie-purple mb-2">
+      <header style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#6366f1', marginBottom: '0.5rem' }}>
           Movemoji #{getPuzzleNumber()}
         </h1>
-        <div className="flex justify-center items-center gap-4">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
           {renderStars()}
-          <span className="text-sm text-gray-600">
+          <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
             {guesses.length}/{maxGuesses} guesses
           </span>
         </div>
       </header>
 
       {/* Emoji Plot Display */}
-      <div className="emoji-display mb-6">
+      <div style={{ 
+        fontSize: '2.5rem', 
+        textAlign: 'center', 
+        padding: '1.5rem', 
+        backgroundColor: 'white', 
+        borderRadius: '1rem', 
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)', 
+        border: '2px solid #f3f4f6',
+        marginBottom: '1.5rem',
+        fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, emoji',
+        lineHeight: '1.2',
+        letterSpacing: '0.1em'
+      }}>
         {puzzle.emoji_plot}
       </div>
 
       {/* Game Status */}
       {isWon && (
-        <div className="text-center mb-4 p-4 bg-green-100 rounded-xl">
-          <p className="text-green-800 font-semibold">🎉 Correct! The movie was:</p>
-          <p className="text-xl font-bold text-green-900">{puzzle.movie_title}</p>
+        <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '1rem', backgroundColor: '#dcfce7', borderRadius: '0.75rem' }}>
+          <p style={{ color: '#166534', fontWeight: '600' }}>🎉 Correct! The movie was:</p>
+          <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#14532d' }}>{puzzle.movie_title}</p>
         </div>
       )}
 
       {isLost && (
-        <div className="text-center mb-4 p-4 bg-red-100 rounded-xl">
-          <p className="text-red-800 font-semibold">💔 Game Over! The movie was:</p>
-          <p className="text-xl font-bold text-red-900">{puzzle.movie_title}</p>
+        <div style={{ textAlign: 'center', marginBottom: '1rem', padding: '1rem', backgroundColor: '#fee2e2', borderRadius: '0.75rem' }}>
+          <p style={{ color: '#dc2626', fontWeight: '600' }}>💔 Game Over! The movie was:</p>
+          <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#991b1b' }}>{puzzle.movie_title}</p>
         </div>
       )}
 
       {/* Guess Input */}
       {!isWon && !isLost && (
-        <div className="mb-6">
-          <div className="flex gap-2">
+        <div style={{ marginBottom: '1.5rem', position: 'relative' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input
               type="text"
               value={guess}
               onChange={(e) => setGuess(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleGuess()}
+              onFocus={() => setShowSuggestions(suggestions.length > 0)}
               placeholder="Enter your guess..."
-              className="game-input flex-1"
+              style={{ 
+                width: '100%', 
+                padding: '1rem', 
+                fontSize: '1.125rem', 
+                border: '2px solid #d1d5db', 
+                borderRadius: '0.75rem',
+                outline: 'none'
+              }}
             />
             <button
-              onClick={handleGuess}
+              onClick={() => handleGuess()}
               disabled={!guess.trim()}
-              className="px-6 py-4 bg-movie-purple text-white rounded-xl font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ 
+                padding: '1rem 1.5rem', 
+                backgroundColor: guess.trim() ? '#6366f1' : '#9ca3af', 
+                color: 'white', 
+                borderRadius: '0.75rem', 
+                fontWeight: '500',
+                border: 'none',
+                cursor: guess.trim() ? 'pointer' : 'not-allowed'
+              }}
             >
               Guess
             </button>
           </div>
+          
+          {/* Auto-suggestions */}
+          {showSuggestions && (
+            <div style={{ 
+              position: 'absolute', 
+              top: '100%', 
+              left: 0, 
+              right: 0, 
+              backgroundColor: 'white', 
+              border: '1px solid #d1d5db', 
+              borderRadius: '0.5rem',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              zIndex: 10,
+              marginTop: '0.25rem'
+            }}>
+              {suggestions.map((suggestion, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  style={{ 
+                    width: '100%', 
+                    padding: '0.75rem', 
+                    textAlign: 'left', 
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    borderBottom: i < suggestions.length - 1 ? '1px solid #f3f4f6' : 'none'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* Previous Guesses */}
       {guesses.length > 0 && (
-        <div className="mb-6">
-          <h3 className="font-semibold text-gray-700 mb-2">Previous Guesses:</h3>
-          <div className="space-y-1">
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h3 style={{ fontWeight: '600', color: '#374151', marginBottom: '0.5rem' }}>Previous Guesses:</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             {guesses.map((g, i) => (
-              <div key={i} className="p-2 bg-gray-100 rounded text-gray-700">
+              <div key={i} style={{ padding: '0.5rem', backgroundColor: '#f3f4f6', borderRadius: '0.25rem', color: '#374151' }}>
                 {i + 1}. {g}
               </div>
             ))}
@@ -154,9 +254,9 @@ function App() {
       )}
 
       {/* Hint Buttons */}
-      <div className="mb-6">
-        <h3 className="font-semibold text-gray-700 mb-3">Hints:</h3>
-        <div className="grid grid-cols-2 gap-3">
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h3 style={{ fontWeight: '600', color: '#374151', marginBottom: '0.75rem' }}>Hints:</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
           {(Object.keys(HINT_INFO) as HintType[]).map((hintType) => {
             const hintInfo = HINT_INFO[hintType]
             const isRevealed = revealedHints.includes(hintType)
@@ -166,7 +266,20 @@ function App() {
                 key={hintType}
                 onClick={() => handleHint(hintType)}
                 disabled={isRevealed}
-                className="hint-button"
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '0.5rem', 
+                  padding: '0.75rem', 
+                  backgroundColor: 'white', 
+                  border: '2px solid #d1d5db', 
+                  borderRadius: '0.75rem', 
+                  fontSize: '0.875rem', 
+                  fontWeight: '500',
+                  cursor: isRevealed ? 'not-allowed' : 'pointer',
+                  opacity: isRevealed ? 0.5 : 1
+                }}
               >
                 <span>{hintInfo.emoji}</span>
                 <span>{isRevealed ? puzzle.hints[hintType] : hintInfo.label}</span>
@@ -178,10 +291,18 @@ function App() {
 
       {/* Share Button */}
       {showShare && (
-        <div className="text-center">
+        <div style={{ textAlign: 'center' }}>
           <button
             onClick={handleShare}
-            className="px-8 py-3 bg-movie-green text-white rounded-xl font-medium hover:bg-green-700"
+            style={{ 
+              padding: '0.75rem 2rem', 
+              backgroundColor: '#10b981', 
+              color: 'white', 
+              borderRadius: '0.75rem', 
+              fontWeight: '500',
+              border: 'none',
+              cursor: 'pointer'
+            }}
           >
             Share Results 📋
           </button>
@@ -189,12 +310,12 @@ function App() {
       )}
 
       {/* Footer */}
-      <footer className="text-center text-sm text-gray-500 mt-8">
+      <footer style={{ textAlign: 'center', fontSize: '0.875rem', color: '#6b7280', marginTop: '2rem' }}>
         <p>A daily movie guessing game 🎬</p>
         <p>
           Test specific puzzles with{' '}
-          <code className="bg-gray-100 px-1 rounded">?puzzle=1</code> through{' '}
-          <code className="bg-gray-100 px-1 rounded">?puzzle=20</code>
+          <code style={{ backgroundColor: '#f3f4f6', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>?puzzle=1</code> through{' '}
+          <code style={{ backgroundColor: '#f3f4f6', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>?puzzle=20</code>
         </p>
       </footer>
     </div>
