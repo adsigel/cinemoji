@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { getTodaysPuzzle, getPuzzleNumber } from './utils/dateUtils'
 import { isCorrectGuess, calculateStars, HINT_INFO, formatShareText } from './utils/gameLogic'
-import { puzzles } from './data/puzzles'
+import { searchMovies, debounce, type MovieSuggestion } from './services/tmdb'
 import type { Puzzle, HintType } from './types/game'
 import './App.css'
 
@@ -13,34 +13,52 @@ function App() {
   const [isWon, setIsWon] = useState(false)
   const [isLost, setIsLost] = useState(false)
   const [showShare, setShowShare] = useState(false)
-  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestions, setSuggestions] = useState<MovieSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
 
   useEffect(() => {
     const todaysPuzzle = getTodaysPuzzle()
     setPuzzle(todaysPuzzle)
   }, [])
 
-  // Auto-suggest functionality
+  // Debounced TMDb search function
+  const debouncedSearch = useCallback(
+    debounce(async (query: string) => {
+      if (query.length < 2 || isWon || isLost) {
+        setSuggestions([])
+        setShowSuggestions(false)
+        setIsLoadingSuggestions(false)
+        return
+      }
+
+      setIsLoadingSuggestions(true)
+      try {
+        const results = await searchMovies(query)
+        setSuggestions(results)
+        setShowSuggestions(results.length > 0)
+      } catch (error) {
+        console.error('Search error:', error)
+        setSuggestions([])
+        setShowSuggestions(false)
+      } finally {
+        setIsLoadingSuggestions(false)
+      }
+    }, 300),
+    [isWon, isLost]
+  )
+
+  // Auto-suggest functionality with TMDb
   useEffect(() => {
-    if (guess.length >= 2) {
-      const movieTitles = puzzles.map(p => p.movie_title)
-      const filtered = movieTitles.filter(title => 
-        title.toLowerCase().includes(guess.toLowerCase())
-      ).slice(0, 5)
-      setSuggestions(filtered)
-      setShowSuggestions(filtered.length > 0 && !isWon && !isLost)
-    } else {
-      setSuggestions([])
-      setShowSuggestions(false)
-    }
-  }, [guess, isWon, isLost])
+    debouncedSearch(guess)
+  }, [guess, debouncedSearch])
 
   const stars = calculateStars(guesses.length + 1)
   const maxGuesses = 5
 
-  const handleGuess = (guessText?: string) => {
-    const finalGuess = guessText || guess
+  const handleGuess = (guessText?: string, originalTitle?: string) => {
+    // Use originalTitle if provided (from suggestion click), otherwise use guessText or guess
+    const finalGuess = originalTitle || guessText || guess
     if (!puzzle || !finalGuess.trim() || isWon || isLost) return
 
     const newGuesses = [...guesses, finalGuess.trim()]
@@ -58,10 +76,11 @@ function App() {
     setShowSuggestions(false)
   }
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setGuess(suggestion)
+  const handleSuggestionClick = (suggestion: MovieSuggestion) => {
+    setGuess(suggestion.displayTitle)
     setShowSuggestions(false)
-    handleGuess(suggestion)
+    // Use the original title for guess matching, but show the display title
+    handleGuess(suggestion.displayTitle, suggestion.originalTitle)
   }
 
   const handleHint = (hintType: HintType) => {
@@ -201,8 +220,8 @@ function App() {
             </button>
           </div>
           
-          {/* Auto-suggestions */}
-          {showSuggestions && (
+          {/* TMDb Auto-suggestions */}
+          {(showSuggestions || isLoadingSuggestions) && (
             <div style={{ 
               position: 'absolute', 
               top: '100%', 
@@ -215,7 +234,12 @@ function App() {
               zIndex: 10,
               marginTop: '0.25rem'
             }}>
-              {suggestions.map((suggestion, i) => (
+              {isLoadingSuggestions && (
+                <div style={{ padding: '0.75rem', textAlign: 'center', color: '#6b7280' }}>
+                  Searching movies...
+                </div>
+              )}
+              {!isLoadingSuggestions && suggestions.map((suggestion, i) => (
                 <button
                   key={i}
                   onClick={() => handleSuggestionClick(suggestion)}
@@ -231,9 +255,14 @@ function App() {
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
-                  {suggestion}
+                  {suggestion.displayTitle}
                 </button>
               ))}
+              {!isLoadingSuggestions && suggestions.length === 0 && guess.length >= 2 && (
+                <div style={{ padding: '0.75rem', textAlign: 'center', color: '#6b7280' }}>
+                  No movies found
+                </div>
+              )}
             </div>
           )}
         </div>
