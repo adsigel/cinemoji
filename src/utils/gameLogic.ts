@@ -60,5 +60,5 @@ ${emojiPlot}
 
 ${starEmojis}${hintEmojis}
 
-Play at ${domain}`;
+Play at https://${domain}`;
 }; 
