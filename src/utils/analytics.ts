@@ -3,12 +3,12 @@ import type { HintType } from '../types/game';
 
 // Debug: Log all environment variables that start with VITE_
 console.log('All VITE_ environment variables:', Object.keys(process.env).filter(key => key.startsWith('VITE_')));
+console.log('All environment variables:', Object.keys(process.env));
+console.log('process.env.AMPLITUDE_API_KEY:', process.env.AMPLITUDE_API_KEY);
 console.log('process.env.VITE_AMPLITUDE_API_KEY:', process.env.VITE_AMPLITUDE_API_KEY);
-console.log('typeof process.env.VITE_AMPLITUDE_API_KEY:', typeof process.env.VITE_AMPLITUDE_API_KEY);
 
-// Initialize Amplitude (reads from VITE_AMPLITUDE_API_KEY environment variable)
-// Force rebuild for environment variable pickup
-const AMPLITUDE_API_KEY = process.env.VITE_AMPLITUDE_API_KEY || 'YOUR_AMPLITUDE_API_KEY';
+// Try both VITE_ and non-VITE_ versions
+const AMPLITUDE_API_KEY = process.env.VITE_AMPLITUDE_API_KEY || process.env.AMPLITUDE_API_KEY || 'YOUR_AMPLITUDE_API_KEY';
 
 export const initAnalytics = () => {
   // Temporary debug - remove after testing
