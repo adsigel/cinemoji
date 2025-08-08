@@ -50,14 +50,46 @@ const recordPuzzleUsage = (puzzleId: number, date: string): void => {
   savePuzzleHistory(trimmed);
 };
 
+// Get custom puzzles from localStorage
+const getCustomPuzzles = () => {
+  try {
+    return JSON.parse(localStorage.getItem('cinemoji_custom_puzzles') || '[]');
+  } catch {
+    return [];
+  }
+};
+
+// Get puzzle schedule from localStorage
+const getPuzzleSchedule = () => {
+  try {
+    return JSON.parse(localStorage.getItem('cinemoji_puzzle_schedule') || '[]');
+  } catch {
+    return [];
+  }
+};
+
 export const getTodaysPuzzle = () => {
   const today = getTodayDateString();
   const history = getPuzzleHistory();
+  const schedule = getPuzzleSchedule();
+  const customPuzzles = getCustomPuzzles();
+  const allPuzzles = [...puzzles, ...customPuzzles];
+  
+  // First, check if there's a scheduled puzzle for today
+  const scheduledPuzzle = schedule.find(entry => entry.date === today);
+  if (scheduledPuzzle) {
+    const puzzle = allPuzzles.find(p => p.id === scheduledPuzzle.puzzleId);
+    if (puzzle) {
+      // Record the scheduled puzzle usage
+      recordPuzzleUsage(puzzle.id, today);
+      return puzzle;
+    }
+  }
   
   // Check if we already selected a puzzle for today
   const todaysPuzzle = history.find(entry => entry.date === today);
   if (todaysPuzzle) {
-    const puzzle = puzzles.find(p => p.id === todaysPuzzle.puzzleId);
+    const puzzle = allPuzzles.find(p => p.id === todaysPuzzle.puzzleId);
     if (puzzle) {
       return puzzle;
     }
@@ -67,7 +99,7 @@ export const getTodaysPuzzle = () => {
   const usedPuzzleIds = new Set(history.map(entry => entry.puzzleId));
   
   // Find unused puzzles
-  const unusedPuzzles = puzzles.filter(puzzle => !usedPuzzleIds.has(puzzle.id));
+  const unusedPuzzles = allPuzzles.filter(puzzle => !usedPuzzleIds.has(puzzle.id));
   
   let selectedPuzzle;
   
@@ -80,7 +112,7 @@ export const getTodaysPuzzle = () => {
     // All puzzles have been used, find the one with the oldest usage date
     const sortedHistory = [...history].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     const oldestEntry = sortedHistory[0];
-    selectedPuzzle = puzzles.find(p => p.id === oldestEntry.puzzleId) || puzzles[0];
+    selectedPuzzle = allPuzzles.find(p => p.id === oldestEntry.puzzleId) || allPuzzles[0];
   }
   
   // Record the puzzle selection for today

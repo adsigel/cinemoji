@@ -17,6 +17,7 @@ import {
 } from './utils/analytics'
 import * as amplitude from '@amplitude/analytics-browser'
 import type { Puzzle, HintType, UserStats, GameResult, TodayGameState } from './types/game'
+import { AdminPanel } from './components/AdminPanel'
 import './App.css'
 
 function App() {
@@ -39,6 +40,9 @@ function App() {
   const [showStatsModal, setShowStatsModal] = useState(false)
   const [showHelpModal, setShowHelpModal] = useState(false)
   const [showDonateModal, setShowDonateModal] = useState(false)
+  
+  // Admin panel state
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
 
   useEffect(() => {
     // Initialize analytics
@@ -154,6 +158,19 @@ function App() {
   useEffect(() => {
     debouncedSearch(guess)
   }, [guess, debouncedSearch])
+
+  // Admin access - Ctrl+Shift+A to open admin panel
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.shiftKey && event.key === 'A') {
+        event.preventDefault()
+        setShowAdminPanel(true)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const stars = calculateStars(guesses.length + (isWon ? 0 : 1))
   const maxGuesses = 5
@@ -701,6 +718,12 @@ function App() {
           </div>
         </Modal>
 
+        {/* Admin Panel */}
+        <AdminPanel 
+          isOpen={showAdminPanel} 
+          onClose={() => setShowAdminPanel(false)} 
+        />
+
         {/* Custom Toast Notification */}
         {showToast && (
           <div style={{
@@ -781,9 +804,18 @@ function App() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
             {renderStars()}
-                                    <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                          {maxGuesses - guesses.length} guesses left
-                        </span>
+            <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+              {maxGuesses - guesses.length} guesses left
+            </span>
+          </div>
+          <div style={{ 
+            textAlign: 'center', 
+            fontSize: '0.75rem', 
+            color: '#9ca3af', 
+            marginTop: '0.5rem',
+            fontStyle: 'italic'
+          }}>
+            Press Ctrl+Shift+A for admin access
           </div>
         </header>
 
