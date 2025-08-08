@@ -5,6 +5,10 @@ import type { HintType } from '../types/game';
 const AMPLITUDE_API_KEY = process.env.VITE_AMPLITUDE_API_KEY || 'YOUR_AMPLITUDE_API_KEY';
 
 export const initAnalytics = () => {
+  // Temporary debug - remove after testing
+  console.log('Amplitude API Key loaded:', AMPLITUDE_API_KEY ? 'YES' : 'NO');
+  console.log('Key starts with:', AMPLITUDE_API_KEY?.substring(0, 10) + '...');
+  
   if (AMPLITUDE_API_KEY && AMPLITUDE_API_KEY !== 'YOUR_AMPLITUDE_API_KEY') {
     amplitude.init(AMPLITUDE_API_KEY, {
       defaultTracking: {
@@ -14,6 +18,7 @@ export const initAnalytics = () => {
         fileDownloads: false,
       },
     });
+    console.log('Amplitude initialized successfully');
   } else {
     console.warn('Amplitude API key not found. Analytics disabled.');
   }
@@ -21,6 +26,7 @@ export const initAnalytics = () => {
 
 // Game Events
 export const trackGameStart = (puzzleId: number, puzzleNumber: number) => {
+  console.log('Tracking Game Started event:', { puzzleId, puzzleNumber });
   amplitude.track('Game Started', {
     puzzle_id: puzzleId,
     puzzle_number: puzzleNumber,
