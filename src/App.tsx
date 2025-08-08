@@ -3,6 +3,18 @@ import { getTodaysPuzzle, getPuzzleNumber, getTodayDateString } from './utils/da
 import { isCorrectGuess, calculateStars, HINT_INFO, formatShareText } from './utils/gameLogic'
 import { searchMovies, debounce, type MovieSuggestion } from './services/tmdb'
 import { recordGameResult, getUserStats, getCalculatedStats, getGameHistory } from './utils/localStorage'
+import { 
+  initAnalytics, 
+  trackGameStart, 
+  trackGuess, 
+  trackHintUsed, 
+  trackGameComplete, 
+  trackShare, 
+  trackModalOpen, 
+  trackDonationClick, 
+  trackAutoSuggestUsed,
+  trackDailyReturn 
+} from './utils/analytics'
 import type { Puzzle, HintType, UserStats, GameResult } from './types/game'
 import './App.css'
 
@@ -28,12 +40,30 @@ function App() {
   const [showDonateModal, setShowDonateModal] = useState(false)
 
   useEffect(() => {
+    // Initialize analytics
+    initAnalytics()
+    
     const todaysPuzzle = getTodaysPuzzle()
     setPuzzle(todaysPuzzle)
     
     // Load user stats
     const stats = getUserStats()
     setUserStats(stats)
+    
+    // Track game start and daily return
+    if (todaysPuzzle) {
+      trackGameStart(todaysPuzzle.id, getPuzzleNumber())
+      
+      // Track daily return if user has played before
+      if (stats.lastPlayed) {
+        const lastPlayedDate = new Date(stats.lastPlayed)
+        const today = new Date()
+        const daysSince = Math.floor((today.getTime() - lastPlayedDate.getTime()) / (1000 * 60 * 60 * 24))
+        if (daysSince > 0) {
+          trackDailyReturn(daysSince, stats.gamesPlayed)
+        }
+      }
+    }
   }, [])
 
   // Record game result when game ends
@@ -51,6 +81,15 @@ function App() {
       const newStats = recordGameResult(gameResult)
       setUserStats(newStats)
       setGameRecorded(true)
+      
+      // Track game completion
+      trackGameComplete(
+        puzzle.id,
+        isWon,
+        isWon ? calculateStars(guesses.length) : 0,
+        guesses.length,
+        revealedHints
+      )
     }
   }, [isWon, isLost, puzzle, guesses.length, revealedHints, gameRecorded])
 
@@ -103,9 +142,19 @@ function App() {
     if (!puzzle || !finalGuess.trim() || isWon || isLost) return
 
     const newGuesses = [...guesses, finalGuess.trim()]
+    const isCorrect = isCorrectGuess(finalGuess, puzzle.movie_title)
+    
+    // Track the guess
+    trackGuess(puzzle.id, newGuesses.length, isCorrect, finalGuess)
+    
+    // Track auto-suggest usage if this came from a suggestion
+    if (originalTitle) {
+      trackAutoSuggestUsed(puzzle.id, originalTitle, isCorrect)
+    }
+
     setGuesses(newGuesses)
 
-    if (isCorrectGuess(finalGuess, puzzle.movie_title)) {
+    if (isCorrect) {
       setIsWon(true)
       setShowShare(true)
     } else if (newGuesses.length >= maxGuesses) {
@@ -125,9 +174,35 @@ function App() {
   }
 
   const handleHint = (hintType: HintType) => {
-    if (!revealedHints.includes(hintType)) {
-      setRevealedHints([...revealedHints, hintType])
+    if (!revealedHints.includes(hintType) && puzzle) {
+      const newRevealedHints = [...revealedHints, hintType]
+      setRevealedHints(newRevealedHints)
+      
+      // Track hint usage
+      trackHintUsed(puzzle.id, hintType, newRevealedHints.length)
     }
+  }
+
+  // Modal handlers with analytics
+  const handleModalOpen = (modalType: 'help' | 'stats' | 'donate') => {
+    trackModalOpen(modalType)
+    
+    switch (modalType) {
+      case 'help':
+        setShowHelpModal(true)
+        break
+      case 'stats':
+        setShowStatsModal(true)
+        break
+      case 'donate':
+        setShowDonateModal(true)
+        break
+    }
+  }
+
+  const handleDonationClick = (tier: 'coffee' | 'snacks' | 'ticket') => {
+    trackDonationClick(tier)
+    window.open('https://ko-fi.com/cinemoji', '_blank')
   }
 
   const showToastMessage = (message: string) => {
@@ -144,8 +219,10 @@ function App() {
       puzzle.emoji_plot,
       isWon ? stars : 0,
       revealedHints,
-      'cinemoji.vercel.app'
+      'cinemoji.fun'
     )
+
+    let shareMethod: 'native' | 'clipboard' | 'prompt' = 'prompt'
 
     // Try native share first on mobile, then clipboard as fallback
     if (navigator.share && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
@@ -154,6 +231,8 @@ function App() {
           title: `Cinemoji #${getPuzzleNumber()}`,
           text: shareText 
         })
+        shareMethod = 'native'
+        trackShare(puzzle.id, shareMethod)
         return
       } catch (shareErr) {
         // If user cancels share dialog, fall through to clipboard
@@ -167,11 +246,15 @@ function App() {
     // Fallback to clipboard with custom toast
     try {
       await navigator.clipboard.writeText(shareText)
+      shareMethod = 'clipboard'
       showToastMessage('Results copied to clipboard! 📋')
     } catch (err) {
       // Final fallback to showing the text
+      shareMethod = 'prompt'
       prompt('Copy this text to share:', shareText)
     }
+    
+    trackShare(puzzle.id, shareMethod)
   }
 
   const renderStars = () => {
@@ -443,7 +526,7 @@ function App() {
             {/* Donation Tiers */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
               <button
-                onClick={() => window.open('https://ko-fi.com/cinemoji', '_blank')}
+                onClick={() => handleDonationClick('coffee')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -478,7 +561,7 @@ function App() {
               </button>
               
               <button
-                onClick={() => window.open('https://ko-fi.com/cinemoji', '_blank')}
+                onClick={() => handleDonationClick('snacks')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -513,7 +596,7 @@ function App() {
               </button>
               
               <button
-                onClick={() => window.open('https://ko-fi.com/cinemoji', '_blank')}
+                onClick={() => handleDonationClick('ticket')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -590,7 +673,7 @@ function App() {
             </h1>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button
-                onClick={() => setShowHelpModal(true)}
+                onClick={() => handleModalOpen('help')}
                 style={{
                   backgroundColor: 'white',
                   border: '2px solid #e5e7eb',
@@ -606,7 +689,7 @@ function App() {
                 ❓
               </button>
               <button
-                onClick={() => setShowStatsModal(true)}
+                onClick={() => handleModalOpen('stats')}
                 style={{
                   backgroundColor: 'white',
                   border: '2px solid #e5e7eb',
@@ -622,7 +705,7 @@ function App() {
                 📊
               </button>
               <button
-                onClick={() => setShowDonateModal(true)}
+                onClick={() => handleModalOpen('donate')}
                 style={{
                   backgroundColor: 'white',
                   border: '2px solid #e5e7eb',
