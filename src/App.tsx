@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { getTodaysPuzzle, getPuzzleNumber, getTodayDateString } from './utils/dateUtils'
 import { isCorrectGuess, calculateStars, HINT_INFO, formatShareText } from './utils/gameLogic'
 import { searchMovies, debounce, type MovieSuggestion } from './services/tmdb'
-import { recordGameResult, getUserStats, getCalculatedStats } from './utils/localStorage'
+import { recordGameResult, getUserStats, getCalculatedStats, getGameHistory } from './utils/localStorage'
 import type { Puzzle, HintType, UserStats, GameResult } from './types/game'
 import './App.css'
 
@@ -202,7 +202,7 @@ function App() {
   const taglineHint = 'tagline' as HintType
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
       <div style={{ maxWidth: '28rem', margin: '0 auto', padding: '1rem' }}>
         {/* Custom Toast Notification */}
         {showToast && (
@@ -427,8 +427,8 @@ function App() {
             })}
           </div>
 
-          {/* Tagline button - full width and centered */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          {/* Tagline button - matches combined width of buttons above */}
+          <div>
             {(() => {
               const hintInfo = HINT_INFO[taglineHint]
               const isRevealed = revealedHints.includes(taglineHint)
@@ -453,8 +453,7 @@ function App() {
                     textAlign: 'left',
                     minHeight: '3rem',
                     boxShadow: isRevealed ? 'none' : '0 1px 2px rgba(0,0,0,0.05)',
-                    width: '100%',
-                    maxWidth: '20rem'
+                    width: '100%'
                   }}
                 >
                   <span style={{ fontSize: '1rem', flexShrink: 0 }}>{hintInfo.emoji}</span>
@@ -506,26 +505,95 @@ function App() {
             </h3>
             {(() => {
               const calculatedStats = getCalculatedStats(userStats)
+              const gameHistory = getGameHistory()
+              
+              // Calculate current win streak
+              const calculateWinStreak = () => {
+                if (gameHistory.length === 0) return 0
+                
+                // Sort by date descending (most recent first)
+                const sortedGames = gameHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                
+                let streak = 0
+                for (const game of sortedGames) {
+                  if (game.completed) {
+                    streak++
+                  } else {
+                    break
+                  }
+                }
+                return streak
+              }
+              
+              const currentStreak = calculateWinStreak()
+              
               return (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', fontSize: '0.875rem' }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#6366f1' }}>
-                      {userStats.gamesPlayed}
+                <div>
+                  {/* Main stats grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#6366f1' }}>
+                        {userStats.gamesPlayed}
+                      </div>
+                      <div style={{ color: '#6b7280' }}>Played</div>
                     </div>
-                    <div style={{ color: '#6b7280' }}>Played</div>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#10b981' }}>
-                      {calculatedStats.winRate}%
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#10b981' }}>
+                        {calculatedStats.winRate}%
+                      </div>
+                      <div style={{ color: '#6b7280' }}>Win Rate</div>
                     </div>
-                    <div style={{ color: '#6b7280' }}>Win Rate</div>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f59e0b' }}>
-                      {calculatedStats.averageStars}⭐
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f59e0b' }}>
+                        {calculatedStats.averageStars}⭐
+                      </div>
+                      <div style={{ color: '#6b7280' }}>Avg Stars</div>
                     </div>
-                    <div style={{ color: '#6b7280' }}>Avg Stars</div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ef4444' }}>
+                        {currentStreak}
+                      </div>
+                      <div style={{ color: '#6b7280' }}>Win Streak</div>
+                    </div>
                   </div>
+                  
+                  {/* Hint usage histogram */}
+                  {calculatedStats.totalHintsUsed > 0 && (
+                    <div>
+                      <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem', textAlign: 'center' }}>
+                        Most Used Hints
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        {(Object.entries(userStats.hintsUsed) as [HintType, number][])
+                          .sort((a, b) => b[1] - a[1])
+                          .filter(([, count]) => count > 0)
+                          .map(([hintType, count]) => {
+                            const hintInfo = HINT_INFO[hintType]
+                            const percentage = (count / calculatedStats.totalHintsUsed) * 100
+                            return (
+                              <div key={hintType} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', minWidth: '5rem' }}>
+                                  <span style={{ fontSize: '0.75rem' }}>{hintInfo.emoji}</span>
+                                  <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{hintInfo.label}</span>
+                                </div>
+                                <div style={{ flex: 1, backgroundColor: '#f3f4f6', borderRadius: '0.25rem', height: '0.5rem', position: 'relative' }}>
+                                  <div style={{ 
+                                    backgroundColor: '#6366f1', 
+                                    height: '100%', 
+                                    borderRadius: '0.25rem',
+                                    width: `${percentage}%`,
+                                    minWidth: percentage > 0 ? '0.125rem' : '0'
+                                  }} />
+                                </div>
+                                <span style={{ fontSize: '0.75rem', color: '#6b7280', minWidth: '2rem', textAlign: 'right' }}>
+                                  {count}
+                                </span>
+                              </div>
+                            )
+                          })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )
             })()}
