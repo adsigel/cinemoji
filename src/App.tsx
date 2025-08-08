@@ -18,6 +18,7 @@ import {
 import * as amplitude from '@amplitude/analytics-browser'
 import type { Puzzle, HintType, UserStats, GameResult, TodayGameState } from './types/game'
 import { AdminPanel } from './components/AdminPanel'
+import { AdminPasswordModal } from './components/AdminPasswordModal'
 import './App.css'
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
   
   // Admin panel state
   const [showAdminPanel, setShowAdminPanel] = useState(false)
+  const [showAdminPassword, setShowAdminPassword] = useState(false)
 
   useEffect(() => {
     // Initialize analytics
@@ -164,7 +166,7 @@ function App() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.shiftKey && event.key === 'A') {
         event.preventDefault()
-        setShowAdminPanel(true)
+        setShowAdminPassword(true)
       }
     }
 
@@ -717,6 +719,16 @@ function App() {
             </div>
           </div>
         </Modal>
+
+        {/* Admin Password Modal */}
+        <AdminPasswordModal
+          isOpen={showAdminPassword}
+          onClose={() => setShowAdminPassword(false)}
+          onSuccess={() => {
+            setShowAdminPassword(false)
+            setShowAdminPanel(true)
+          }}
+        />
 
         {/* Admin Panel */}
         <AdminPanel 
