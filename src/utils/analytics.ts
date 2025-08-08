@@ -2,6 +2,7 @@ import * as amplitude from '@amplitude/analytics-browser';
 import type { HintType } from '../types/game';
 
 // Initialize Amplitude (reads from VITE_AMPLITUDE_API_KEY environment variable)
+// Force rebuild for environment variable pickup
 const AMPLITUDE_API_KEY = process.env.VITE_AMPLITUDE_API_KEY || 'YOUR_AMPLITUDE_API_KEY';
 
 export const initAnalytics = () => {
