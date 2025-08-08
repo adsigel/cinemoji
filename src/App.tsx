@@ -21,6 +21,11 @@ function App() {
   const [toastMessage, setToastMessage] = useState('')
   const [userStats, setUserStats] = useState<UserStats | null>(null)
   const [gameRecorded, setGameRecorded] = useState(false)
+  
+  // Modal states
+  const [showStatsModal, setShowStatsModal] = useState(false)
+  const [showHelpModal, setShowHelpModal] = useState(false)
+  const [showDonateModal, setShowDonateModal] = useState(false)
 
   useEffect(() => {
     const todaysPuzzle = getTodaysPuzzle()
@@ -183,6 +188,200 @@ function App() {
     )
   }
 
+  // Modal component
+  const Modal = ({ isOpen, onClose, title, children }: {
+    isOpen: boolean
+    onClose: () => void
+    title: string
+    children: React.ReactNode
+  }) => {
+    if (!isOpen) return null
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1rem'
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '1rem',
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+          width: '100%',
+          maxWidth: '32rem',
+          maxHeight: '90vh',
+          overflow: 'auto'
+        }}>
+          {/* Modal Header */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '1rem 1.5rem',
+            borderBottom: '1px solid #e5e7eb'
+          }}>
+            <h2 style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              color: '#374151',
+              margin: 0
+            }}>
+              {title}
+            </h2>
+            <button
+              onClick={onClose}
+              style={{
+                backgroundColor: 'transparent',
+                border: 'none',
+                fontSize: '1.5rem',
+                color: '#6b7280',
+                cursor: 'pointer',
+                padding: '0.25rem',
+                borderRadius: '0.25rem',
+                lineHeight: 1
+              }}
+            >
+              ×
+            </button>
+          </div>
+          
+          {/* Modal Content */}
+          <div style={{ padding: '1.5rem' }}>
+            {children}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Stats Modal Content
+  const StatsModalContent = () => {
+    if (!userStats || userStats.gamesPlayed === 0) {
+      return (
+        <div style={{ textAlign: 'center', color: '#6b7280' }}>
+          <p>Play your first game to see statistics!</p>
+        </div>
+      )
+    }
+
+    const calculatedStats = getCalculatedStats(userStats)
+    const gameHistory = getGameHistory()
+    
+    // Calculate current win streak
+    const calculateWinStreak = () => {
+      if (gameHistory.length === 0) return 0
+      
+      // Sort by date descending (most recent first)
+      const sortedGames = gameHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      
+      let streak = 0
+      for (const game of sortedGames) {
+        if (game.completed) {
+          streak++
+        } else {
+          break
+        }
+      }
+      return streak
+    }
+    
+    const currentStreak = calculateWinStreak()
+
+    return (
+      <div>
+        {/* Main stats grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.75rem' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#6366f1' }}>
+              {userStats.gamesPlayed}
+            </div>
+            <div style={{ color: '#6b7280' }}>Games Played</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.75rem' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#10b981' }}>
+              {calculatedStats.winRate}%
+            </div>
+            <div style={{ color: '#6b7280' }}>Win Rate</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.75rem' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#f59e0b' }}>
+              {calculatedStats.averageStars}⭐
+            </div>
+            <div style={{ color: '#6b7280' }}>Average Stars</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.75rem' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#ef4444' }}>
+              {currentStreak}
+            </div>
+            <div style={{ color: '#6b7280' }}>Current Streak</div>
+          </div>
+        </div>
+        
+        {/* Additional stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.75rem' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#8b5cf6' }}>
+              {userStats.perfectDays}
+            </div>
+            <div style={{ color: '#6b7280' }}>Perfect Games</div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.75rem' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#06b6d4' }}>
+              {calculatedStats.totalHintsUsed}
+            </div>
+            <div style={{ color: '#6b7280' }}>Total Hints Used</div>
+          </div>
+        </div>
+        
+        {/* Hint usage histogram */}
+        {calculatedStats.totalHintsUsed > 0 && (
+          <div>
+            <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#374151', marginBottom: '0.75rem' }}>
+              Hint Usage Breakdown
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {(Object.entries(userStats.hintsUsed) as [HintType, number][])
+                .sort((a, b) => b[1] - a[1])
+                .filter(([, count]) => count > 0)
+                .map(([hintType, count]) => {
+                  const hintInfo = HINT_INFO[hintType]
+                  const percentage = (count / calculatedStats.totalHintsUsed) * 100
+                  return (
+                    <div key={hintType} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: '6rem' }}>
+                        <span style={{ fontSize: '1rem' }}>{hintInfo.emoji}</span>
+                        <span style={{ fontSize: '0.875rem', color: '#374151', fontWeight: '500' }}>{hintInfo.label}</span>
+                      </div>
+                      <div style={{ flex: 1, backgroundColor: '#e5e7eb', borderRadius: '0.5rem', height: '0.75rem', position: 'relative' }}>
+                        <div style={{ 
+                          backgroundColor: '#6366f1', 
+                          height: '100%', 
+                          borderRadius: '0.5rem',
+                          width: `${percentage}%`,
+                          minWidth: percentage > 0 ? '0.25rem' : '0'
+                        }} />
+                      </div>
+                      <span style={{ fontSize: '0.875rem', color: '#6b7280', minWidth: '2.5rem', textAlign: 'right', fontWeight: '500' }}>
+                        {count} ({Math.round(percentage)}%)
+                      </span>
+                    </div>
+                  )
+                })}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   if (!puzzle) {
     return (
       <div style={{ 
@@ -204,6 +403,55 @@ function App() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
       <div style={{ maxWidth: '28rem', margin: '0 auto', padding: '1rem' }}>
+        {/* Modals */}
+        <Modal isOpen={showStatsModal} onClose={() => setShowStatsModal(false)} title="📊 Your Statistics">
+          <StatsModalContent />
+        </Modal>
+        
+        <Modal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} title="❓ How to Play">
+          <div>
+            <p style={{ marginBottom: '1rem' }}>Welcome to Movemoji! Guess the movie from emoji clues.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div>
+                <strong>🎯 Goal:</strong> Guess the movie title in 5 tries or less
+              </div>
+              <div>
+                <strong>⭐ Scoring:</strong> Fewer guesses = more stars (max 5⭐)
+              </div>
+              <div>
+                <strong>💡 Hints:</strong> Use hints to help, but they'll appear in your score
+              </div>
+              <div>
+                <strong>🔄 Daily:</strong> New puzzle every day at midnight
+              </div>
+              <div>
+                <strong>📱 Share:</strong> Share your results without spoiling the answer
+              </div>
+            </div>
+          </div>
+        </Modal>
+        
+        <Modal isOpen={showDonateModal} onClose={() => setShowDonateModal(false)} title="💚 Support Movemoji">
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ marginBottom: '1rem' }}>Enjoying Movemoji? Help keep it running!</p>
+            <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+              Your support helps cover hosting costs and keeps the game ad-free.
+            </p>
+            <button style={{
+              backgroundColor: '#10b981',
+              color: 'white',
+              padding: '0.75rem 2rem',
+              borderRadius: '0.75rem',
+              border: 'none',
+              fontWeight: '600',
+              cursor: 'pointer',
+              fontSize: '1rem'
+            }}>
+              ☕ Buy us a coffee
+            </button>
+          </div>
+        </Modal>
+
         {/* Custom Toast Notification */}
         {showToast && (
           <div style={{
@@ -226,9 +474,62 @@ function App() {
 
         {/* Header */}
         <header style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#6366f1', marginBottom: '0.5rem' }}>
-            Movemoji #{getPuzzleNumber()}
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <div style={{ width: '4rem' }}></div> {/* Spacer for centering */}
+            <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#6366f1', margin: 0 }}>
+              Movemoji #{getPuzzleNumber()}
+            </h1>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={() => setShowHelpModal(true)}
+                style={{
+                  backgroundColor: 'white',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '1.25rem',
+                  lineHeight: 1,
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                }}
+                title="How to play"
+              >
+                ❓
+              </button>
+              <button
+                onClick={() => setShowStatsModal(true)}
+                style={{
+                  backgroundColor: 'white',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '1.25rem',
+                  lineHeight: 1,
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                }}
+                title="Your statistics"
+              >
+                📊
+              </button>
+              <button
+                onClick={() => setShowDonateModal(true)}
+                style={{
+                  backgroundColor: 'white',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem',
+                  cursor: 'pointer',
+                  fontSize: '1.25rem',
+                  lineHeight: 1,
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                }}
+                title="Support the game"
+              >
+                💚
+              </button>
+            </div>
+          </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
             {renderStars()}
             <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
@@ -488,115 +789,6 @@ function App() {
             >
               Share Results 📋
             </button>
-          </div>
-        )}
-
-        {/* Statistics Display */}
-        {userStats && userStats.gamesPlayed > 0 && (
-          <div style={{ 
-            marginTop: '2rem', 
-            padding: '1rem', 
-            backgroundColor: 'white', 
-            borderRadius: '0.75rem', 
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)' 
-          }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#374151', marginBottom: '0.75rem', textAlign: 'center' }}>
-              Your Stats
-            </h3>
-            {(() => {
-              const calculatedStats = getCalculatedStats(userStats)
-              const gameHistory = getGameHistory()
-              
-              // Calculate current win streak
-              const calculateWinStreak = () => {
-                if (gameHistory.length === 0) return 0
-                
-                // Sort by date descending (most recent first)
-                const sortedGames = gameHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                
-                let streak = 0
-                for (const game of sortedGames) {
-                  if (game.completed) {
-                    streak++
-                  } else {
-                    break
-                  }
-                }
-                return streak
-              }
-              
-              const currentStreak = calculateWinStreak()
-              
-              return (
-                <div>
-                  {/* Main stats grid */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', fontSize: '0.875rem', marginBottom: '1rem' }}>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#6366f1' }}>
-                        {userStats.gamesPlayed}
-                      </div>
-                      <div style={{ color: '#6b7280' }}>Played</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#10b981' }}>
-                        {calculatedStats.winRate}%
-                      </div>
-                      <div style={{ color: '#6b7280' }}>Win Rate</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f59e0b' }}>
-                        {calculatedStats.averageStars}⭐
-                      </div>
-                      <div style={{ color: '#6b7280' }}>Avg Stars</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ef4444' }}>
-                        {currentStreak}
-                      </div>
-                      <div style={{ color: '#6b7280' }}>Win Streak</div>
-                    </div>
-                  </div>
-                  
-                  {/* Hint usage histogram */}
-                  {calculatedStats.totalHintsUsed > 0 && (
-                    <div>
-                      <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem', textAlign: 'center' }}>
-                        Most Used Hints
-                      </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        {(Object.entries(userStats.hintsUsed) as [HintType, number][])
-                          .sort((a, b) => b[1] - a[1])
-                          .filter(([, count]) => count > 0)
-                          .map(([hintType, count]) => {
-                            const hintInfo = HINT_INFO[hintType]
-                            const percentage = (count / calculatedStats.totalHintsUsed) * 100
-                            return (
-                              <div key={hintType} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', minWidth: '5rem' }}>
-                                  <span style={{ fontSize: '0.75rem' }}>{hintInfo.emoji}</span>
-                                  <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{hintInfo.label}</span>
-                                </div>
-                                <div style={{ flex: 1, backgroundColor: '#f3f4f6', borderRadius: '0.25rem', height: '0.5rem', position: 'relative' }}>
-                                  <div style={{ 
-                                    backgroundColor: '#6366f1', 
-                                    height: '100%', 
-                                    borderRadius: '0.25rem',
-                                    width: `${percentage}%`,
-                                    minWidth: percentage > 0 ? '0.125rem' : '0'
-                                  }} />
-                                </div>
-                                <span style={{ fontSize: '0.75rem', color: '#6b7280', minWidth: '2rem', textAlign: 'right' }}>
-                                  {count}
-                                </span>
-                              </div>
-                            )
-                          })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
           </div>
         )}
 
