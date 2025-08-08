@@ -492,6 +492,32 @@ function App() {
             </div>
           </div>
         )}
+        
+        {/* Share section for completed games */}
+        {(isWon || isLost) && (
+          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+            <div style={{ marginBottom: '1rem' }}>
+              <button 
+                onClick={handleShare}
+                style={{ 
+                  padding: '0.75rem 2rem', 
+                  backgroundColor: '#10b981', 
+                  color: 'white', 
+                  borderRadius: '0.75rem', 
+                  fontWeight: '500',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                }}
+              >
+                Share Today's Results 📋
+              </button>
+            </div>
+            <p style={{ fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic' }}>
+              🎬 Great job! Come back tomorrow for a new puzzle!
+            </p>
+          </div>
+        )}
       </div>
     )
   }
@@ -755,9 +781,9 @@ function App() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
             {renderStars()}
-            <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-              {guesses.length}/{maxGuesses} guesses
-            </span>
+                                    <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                          {maxGuesses - guesses.length} guesses left
+                        </span>
           </div>
         </header>
 
@@ -1025,6 +1051,9 @@ function App() {
             >
               Share Results 📋
             </button>
+            <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#6b7280', fontStyle: 'italic' }}>
+              🎬 Great job! Come back tomorrow for a new puzzle!
+            </p>
           </div>
         )}
 
