@@ -820,15 +820,6 @@ function App() {
               {maxGuesses - guesses.length} guesses left
             </span>
           </div>
-          <div style={{ 
-            textAlign: 'center', 
-            fontSize: '0.75rem', 
-            color: '#9ca3af', 
-            marginTop: '0.5rem',
-            fontStyle: 'italic'
-          }}>
-            Press Ctrl+Shift+A for admin access
-          </div>
         </header>
 
         {/* Puzzle Number and Emoji Plot Display */}

@@ -342,85 +342,200 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[95vh] overflow-hidden">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">🎬 Cinemoji Admin Panel</h2>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.75)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem',
+      zIndex: 50
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '0.5rem',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        width: '100%',
+        maxWidth: '72rem',
+        height: '95vh',
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '1.5rem',
+          borderBottom: '1px solid #e5e7eb'
+        }}>
+          <h2 style={{
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            color: '#1f2937'
+          }}>🎬 Cinemoji Admin Panel</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            style={{
+              color: '#6b7280',
+              fontSize: '1.5rem',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#374151'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
           >
             ×
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b">
+        <div style={{
+          display: 'flex',
+          borderBottom: '1px solid #e5e7eb'
+        }}>
           <button
             onClick={() => setActiveTab('add')}
-            className={`px-6 py-3 font-medium ${
-              activeTab === 'add' 
-                ? 'border-b-2 border-purple-500 text-purple-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontWeight: '500',
+              borderBottom: activeTab === 'add' ? '2px solid #7c3aed' : 'none',
+              color: activeTab === 'add' ? '#7c3aed' : '#6b7280',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'add') e.currentTarget.style.color = '#374151';
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'add') e.currentTarget.style.color = '#6b7280';
+            }}
           >
             Add Puzzle
           </button>
           <button
             onClick={() => setActiveTab('schedule')}
-            className={`px-6 py-3 font-medium ${
-              activeTab === 'schedule' 
-                ? 'border-b-2 border-purple-500 text-purple-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontWeight: '500',
+              borderBottom: activeTab === 'schedule' ? '2px solid #7c3aed' : 'none',
+              color: activeTab === 'schedule' ? '#7c3aed' : '#6b7280',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'schedule') e.currentTarget.style.color = '#374151';
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'schedule') e.currentTarget.style.color = '#6b7280';
+            }}
           >
             Schedule Puzzles
           </button>
           <button
             onClick={() => setActiveTab('stats')}
-            className={`px-6 py-3 font-medium ${
-              activeTab === 'stats' 
-                ? 'border-b-2 border-purple-500 text-purple-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontWeight: '500',
+              borderBottom: activeTab === 'stats' ? '2px solid #7c3aed' : 'none',
+              color: activeTab === 'stats' ? '#7c3aed' : '#6b7280',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'stats') e.currentTarget.style.color = '#374151';
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'stats') e.currentTarget.style.color = '#6b7280';
+            }}
           >
             Reset Stats
           </button>
           <button
             onClick={() => setActiveTab('user')}
-            className={`px-6 py-3 font-medium ${
-              activeTab === 'user' 
-                ? 'border-b-2 border-purple-500 text-purple-600' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+            style={{
+              padding: '0.75rem 1.5rem',
+              fontWeight: '500',
+              borderBottom: activeTab === 'user' ? '2px solid #7c3aed' : 'none',
+              color: activeTab === 'user' ? '#7c3aed' : '#6b7280',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'user') e.currentTarget.style.color = '#374151';
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'user') e.currentTarget.style.color = '#6b7280';
+            }}
           >
             Reset User
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto h-[calc(95vh-140px)]">
+        <div style={{
+          padding: '1.5rem',
+          overflowY: 'auto',
+          height: 'calc(95vh - 140px)'
+        }}>
           {/* Add Puzzle Tab */}
           {activeTab === 'add' && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Add New Puzzle</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                color: '#1f2937'
+              }}>Add New Puzzle</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '1.5rem'
+              }}>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Movie Title *
                   </label>
-                  <div className="flex gap-2">
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <input
                       type="text"
                       value={newPuzzle.movie_title}
                       onChange={(e) => setNewPuzzle({...newPuzzle, movie_title: e.target.value})}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem 0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem'
+                      }}
                       placeholder="e.g., The Matrix"
                     />
                     <button
                       type="button"
                       onClick={() => fetchTMDbData(newPuzzle.movie_title || '')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#2563eb',
+                        color: 'white',
+                        borderRadius: '0.375rem',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.875rem'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
                       title="Auto-fill from TMDb"
                     >
                       🎬 TMDb
@@ -429,13 +544,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Difficulty
                   </label>
                   <select
                     value={newPuzzle.difficulty}
                     onChange={(e) => setNewPuzzle({...newPuzzle, difficulty: e.target.value as 'easy' | 'medium' | 'hard'})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem'
+                    }}
                   >
                     <option value="easy">Easy</option>
                     <option value="medium">Medium</option>
@@ -443,24 +570,46 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   </select>
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Emoji Plot *
                   </label>
                   <input
                     type="text"
                     value={newPuzzle.emoji_plot}
                     onChange={(e) => setNewPuzzle({...newPuzzle, emoji_plot: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem'
+                    }}
                     placeholder="e.g., 👦☎️👨🏿💊🖥🌏🤖🔫🔫🚁🔫🔫"
                   />
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p style={{
+                    fontSize: '0.875rem',
+                    color: '#6b7280',
+                    marginTop: '0.25rem'
+                  }}>
                     Use emojis to represent the movie plot. Be creative!
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Actor 1
                   </label>
                   <input
@@ -470,13 +619,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       ...newPuzzle, 
                       hints: {...newPuzzle.hints!, actor1: e.target.value}
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem'
+                    }}
                     placeholder="e.g., Keanu Reeves"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Actor 2
                   </label>
                   <input
@@ -486,13 +647,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       ...newPuzzle, 
                       hints: {...newPuzzle.hints!, actor2: e.target.value}
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem'
+                    }}
                     placeholder="e.g., Laurence Fishburne"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Year
                   </label>
                   <input
@@ -502,13 +675,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       ...newPuzzle, 
                       hints: {...newPuzzle.hints!, year: e.target.value}
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem'
+                    }}
                     placeholder="e.g., 1999"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Director
                   </label>
                   <input
@@ -518,13 +703,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       ...newPuzzle, 
                       hints: {...newPuzzle.hints!, director: e.target.value}
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem'
+                    }}
                     placeholder="e.g., Lana Wachowski"
                   />
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Tagline
                   </label>
                   <input
@@ -534,22 +731,52 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       ...newPuzzle, 
                       hints: {...newPuzzle.hints!, tagline: e.target.value}
                     })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem'
+                    }}
                     placeholder="e.g., Reality is a thing of the past."
                   />
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <button
                   onClick={handleAddPuzzle}
-                  className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition-colors"
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#7c3aed',
+                    color: 'white',
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '0.375rem',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: '500'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6d28d9'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
                 >
                   Add Puzzle
                 </button>
                 <button
                   onClick={exportCustomPuzzles}
-                  className="flex-1 bg-gray-600 text-white py-3 px-6 rounded-md hover:bg-gray-700 transition-colors"
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#4b5563',
+                    color: 'white',
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '0.375rem',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: '500'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#374151'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4b5563'}
                 >
                   Export Custom Puzzles
                 </button>

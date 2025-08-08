@@ -33,57 +33,134 @@ export function AdminPasswordModal({ isOpen, onClose, onSuccess }: AdminPassword
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">🔐 Admin Access</h2>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem',
+      zIndex: 50
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '0.5rem',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        maxWidth: '28rem',
+        width: '100%',
+        padding: '1.5rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1rem'
+        }}>
+          <h2 style={{
+            fontSize: '1.25rem',
+            fontWeight: 'bold',
+            color: '#1f2937'
+          }}>🔐 Admin Access</h2>
           <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            style={{
+              color: '#6b7280',
+              fontSize: '1.5rem',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#374151'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
           >
             ×
           </button>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label style={{
+              display: 'block',
+              fontSize: '0.875rem',
+              fontWeight: '500',
+              color: '#374151',
+              marginBottom: '0.5rem'
+            }}>
               Password
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              style={{
+                width: '100%',
+                padding: '0.5rem 0.75rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.375rem',
+                fontSize: '0.875rem'
+              }}
               placeholder="Enter admin password"
               autoFocus
             />
           </div>
           
           {error && (
-            <div className="text-red-600 text-sm">
+            <div style={{ color: '#dc2626', fontSize: '0.875rem' }}>
               {error}
             </div>
           )}
           
-          <div className="flex gap-3">
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
             <button
               type="submit"
-              className="flex-1 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition-colors"
+              style={{
+                flex: 1,
+                backgroundColor: '#7c3aed',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.375rem',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#6d28d9'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#7c3aed'}
             >
               Access Admin Panel
             </button>
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+              style={{
+                flex: 1,
+                backgroundColor: '#d1d5db',
+                color: '#374151',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.375rem',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#9ca3af'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#d1d5db'}
             >
               Cancel
             </button>
           </div>
         </form>
         
-        <div className="mt-4 text-xs text-gray-500 text-center">
+        <div style={{
+          marginTop: '1rem',
+          fontSize: '0.75rem',
+          color: '#6b7280',
+          textAlign: 'center'
+        }}>
           💡 Hint: Check the project documentation for the password
         </div>
       </div>
