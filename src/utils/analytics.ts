@@ -1,21 +1,10 @@
 import * as amplitude from '@amplitude/analytics-browser';
 import type { HintType } from '../types/game';
 
-// TEMPORARY: Hardcode API key to test if analytics work
-// Replace this with your actual Amplitude API key temporarily
-const AMPLITUDE_API_KEY = '325dfb50ecaaacbc7314d3dacd3ceec7';
-
-// Debug: Log environment variable status
-console.log('All VITE_ environment variables:', Object.keys(process.env).filter(key => key.startsWith('VITE_')));
-console.log('All environment variables:', Object.keys(process.env));
-console.log('Using hardcoded API key for testing');
+// Use environment variable with correct source-specific API key as fallback
+const AMPLITUDE_API_KEY = process.env.VITE_AMPLITUDE_API_KEY || process.env.AMPLITUDE_API_KEY || '325dfb50ecaaacbc7314d3dacd3ceec7';
 
 export const initAnalytics = () => {
-  console.log('Amplitude API Key loaded:', AMPLITUDE_API_KEY ? 'YES' : 'NO');
-  console.log('Key starts with:', AMPLITUDE_API_KEY?.substring(0, 10) + '...');
-  console.log('Key length:', AMPLITUDE_API_KEY?.length);
-  console.log('Using source-specific API key');
-  
   if (AMPLITUDE_API_KEY) {
     amplitude.init(AMPLITUDE_API_KEY, {
       defaultTracking: {
@@ -25,7 +14,7 @@ export const initAnalytics = () => {
         fileDownloads: false,
       },
     });
-    console.log('Amplitude initialized successfully with source key');
+    console.log('Amplitude analytics initialized');
   } else {
     console.warn('Amplitude API key not found. Analytics disabled.');
   }
@@ -33,7 +22,6 @@ export const initAnalytics = () => {
 
 // Game Events
 export const trackGameStart = (puzzleId: number, puzzleNumber: number) => {
-  console.log('Tracking Game Started event:', { puzzleId, puzzleNumber });
   amplitude.track('Game Started', {
     puzzle_id: puzzleId,
     puzzle_number: puzzleNumber,
