@@ -144,14 +144,14 @@ function App() {
       puzzle.emoji_plot,
       isWon ? stars : 0,
       revealedHints,
-      'movemoji.vercel.app'
+      'cinemoji.vercel.app'
     )
 
     // Try native share first on mobile, then clipboard as fallback
     if (navigator.share && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
       try {
         await navigator.share({ 
-          title: `Movemoji #${getPuzzleNumber()}`,
+          title: `Cinemoji #${getPuzzleNumber()}`,
           text: shareText 
         })
         return
@@ -410,7 +410,7 @@ function App() {
         
         <Modal isOpen={showHelpModal} onClose={() => setShowHelpModal(false)} title="❓ How to Play">
           <div>
-            <p style={{ marginBottom: '1rem' }}>Welcome to Movemoji! Guess the movie from emoji clues.</p>
+            <p style={{ marginBottom: '1rem' }}>Welcome to Cinemoji! Guess the movie from emoji clues.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div>
                 <strong>🎯 Goal:</strong> Guess the movie title in 5 tries or less
@@ -431,19 +431,19 @@ function App() {
           </div>
         </Modal>
         
-        <Modal isOpen={showDonateModal} onClose={() => setShowDonateModal(false)} title="💚 Support Movemoji">
+        <Modal isOpen={showDonateModal} onClose={() => setShowDonateModal(false)} title="💚 Support Cinemoji">
           <div style={{ textAlign: 'center' }}>
             <p style={{ marginBottom: '0.5rem', fontSize: '1.125rem', fontWeight: '600' }}>
               Enjoying the daily movie challenge?
             </p>
             <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-              Help keep Movemoji running ad-free with a small contribution!
+              Help keep Cinemoji running ad-free with a small contribution!
             </p>
             
             {/* Donation Tiers */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
               <button
-                onClick={() => window.open('https://ko-fi.com/movemoji', '_blank')}
+                onClick={() => window.open('https://ko-fi.com/cinemoji', '_blank')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -478,7 +478,7 @@ function App() {
               </button>
               
               <button
-                onClick={() => window.open('https://ko-fi.com/movemoji', '_blank')}
+                onClick={() => window.open('https://ko-fi.com/cinemoji', '_blank')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -513,7 +513,7 @@ function App() {
               </button>
               
               <button
-                onClick={() => window.open('https://ko-fi.com/movemoji', '_blank')}
+                onClick={() => window.open('https://ko-fi.com/cinemoji', '_blank')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -586,7 +586,7 @@ function App() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
             <div style={{ width: '4rem' }}></div> {/* Spacer for centering */}
             <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#6366f1', margin: 0 }}>
-              Movemoji
+              Cinemoji
             </h1>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button
@@ -917,11 +917,6 @@ function App() {
         {/* Footer */}
         <footer style={{ textAlign: 'center', fontSize: '0.875rem', color: '#6b7280', marginTop: '2rem' }}>
           <p>A daily movie guessing game 🎬</p>
-          <p>
-            Test specific puzzles with{' '}
-            <code style={{ backgroundColor: 'white', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>?puzzle=1</code> through{' '}
-            <code style={{ backgroundColor: 'white', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>?puzzle=20</code>
-          </p>
           <p style={{ marginTop: '1rem', fontSize: '0.75rem' }}>
             Movie data provided by{' '}
             <a 

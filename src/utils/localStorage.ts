@@ -1,7 +1,7 @@
 import type { UserStats, GameResult, HintType } from '../types/game';
 
-const STATS_KEY = 'movemoji_user_stats';
-const HISTORY_KEY = 'movemoji_game_history';
+const STATS_KEY = 'cinemoji_user_stats';
+const HISTORY_KEY = 'cinemoji_game_history';
 
 // Initialize empty stats
 const getDefaultStats = (): UserStats => ({

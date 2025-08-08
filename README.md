@@ -1,4 +1,4 @@
-# Movemoji 🎬⭐
+# Cinemoji 🎬⭐
 
 A daily movie guessing game where users identify films based on emoji-only plot summaries. Inspired by Wordle, players get 5 guesses and can use strategic hints to help solve each puzzle.
 
@@ -26,7 +26,7 @@ A daily movie guessing game where users identify films based on emoji-only plot 
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd movemoji
+   cd cinemoji
    ```
 
 2. **Install dependencies**
@@ -107,12 +107,12 @@ This makes it easy to test specific puzzles, difficulty levels, or emoji sequenc
 
 #### Share Format
 ```
-Movemoji #123 🎬
-🚍💣
+Cinemoji #123 🎬
+🚍��
 
 ⭐⭐⭐🎬🏷️
 
-Play at movemoji.com
+Play at cinemoji.com
 ```
 
 ## 🎯 Current Features
@@ -158,7 +158,7 @@ Play at movemoji.com
 ### Development/Testing
 - **Vercel** (recommended): Automatic deployments from Git
 - Connect GitHub repo for instant updates
-- Share `movemoji-username.vercel.app` with friends
+- Share `cinemoji-username.vercel.app` with friends
 
 ### Production
 - Custom domain setup
