@@ -1,6 +1,11 @@
 import * as amplitude from '@amplitude/analytics-browser';
 import type { HintType } from '../types/game';
 
+// Debug: Log all environment variables that start with VITE_
+console.log('All VITE_ environment variables:', Object.keys(process.env).filter(key => key.startsWith('VITE_')));
+console.log('process.env.VITE_AMPLITUDE_API_KEY:', process.env.VITE_AMPLITUDE_API_KEY);
+console.log('typeof process.env.VITE_AMPLITUDE_API_KEY:', typeof process.env.VITE_AMPLITUDE_API_KEY);
+
 // Initialize Amplitude (reads from VITE_AMPLITUDE_API_KEY environment variable)
 // Force rebuild for environment variable pickup
 const AMPLITUDE_API_KEY = process.env.VITE_AMPLITUDE_API_KEY || 'YOUR_AMPLITUDE_API_KEY';
@@ -9,6 +14,8 @@ export const initAnalytics = () => {
   // Temporary debug - remove after testing
   console.log('Amplitude API Key loaded:', AMPLITUDE_API_KEY ? 'YES' : 'NO');
   console.log('Key starts with:', AMPLITUDE_API_KEY?.substring(0, 10) + '...');
+  console.log('Key length:', AMPLITUDE_API_KEY?.length);
+  console.log('Is default fallback?', AMPLITUDE_API_KEY === 'YOUR_AMPLITUDE_API_KEY');
   
   if (AMPLITUDE_API_KEY && AMPLITUDE_API_KEY !== 'YOUR_AMPLITUDE_API_KEY') {
     amplitude.init(AMPLITUDE_API_KEY, {
