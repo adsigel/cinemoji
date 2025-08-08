@@ -1,7 +1,8 @@
-import type { UserStats, GameResult, HintType } from '../types/game';
+import type { UserStats, GameResult, HintType, TodayGameState } from '../types/game';
 
 const STATS_KEY = 'cinemoji_user_stats';
 const HISTORY_KEY = 'cinemoji_game_history';
+const GAME_STATE_KEY = 'cinemoji_today_game_state';
 
 // Initialize empty stats
 const getDefaultStats = (): UserStats => ({
@@ -147,11 +148,43 @@ export const getCalculatedStats = (stats: UserStats) => {
   };
 };
 
+// Get today's game state from localStorage
+export const getTodayGameState = (todayDate: string): TodayGameState | null => {
+  try {
+    const stored = localStorage.getItem(GAME_STATE_KEY);
+    if (!stored) {
+      return null;
+    }
+    
+    const gameState = JSON.parse(stored) as TodayGameState;
+    
+    // Return null if it's not today's game
+    if (gameState.date !== todayDate) {
+      return null;
+    }
+    
+    return gameState;
+  } catch (error) {
+    console.error('Error reading today game state:', error);
+    return null;
+  }
+};
+
+// Save today's game state to localStorage
+export const saveTodayGameState = (gameState: TodayGameState): void => {
+  try {
+    localStorage.setItem(GAME_STATE_KEY, JSON.stringify(gameState));
+  } catch (error) {
+    console.error('Error saving today game state:', error);
+  }
+};
+
 // Clear all data (for testing/reset)
 export const clearAllData = (): void => {
   try {
     localStorage.removeItem(STATS_KEY);
     localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(GAME_STATE_KEY);
   } catch (error) {
     console.error('Error clearing data:', error);
   }

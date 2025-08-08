@@ -57,4 +57,14 @@ export interface ShareData {
   stars: number;
   hintsUsed: HintType[];
   url: string;
+}
+
+export interface TodayGameState {
+  puzzleId: number;
+  date: string;
+  guesses: string[];
+  revealedHints: HintType[];
+  isWon: boolean;
+  isLost: boolean;
+  gameCompleted: boolean;
 } 

@@ -54,7 +54,7 @@ export const formatShareText = (
   const starEmojis = stars > 0 ? '⭐'.repeat(stars) : '💔';
   const hintEmojis = revealedHints.map(hint => HINT_INFO[hint].emoji).join('');
   
-  return `Movemoji #${puzzleNumber}
+  return `Cinemoji #${puzzleNumber}
 
 ${emojiPlot}
 

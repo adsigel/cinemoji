@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { getTodaysPuzzle, getPuzzleNumber, getTodayDateString } from './utils/dateUtils'
 import { isCorrectGuess, calculateStars, HINT_INFO, formatShareText } from './utils/gameLogic'
 import { searchMovies, debounce, type MovieSuggestion } from './services/tmdb'
-import { recordGameResult, getUserStats, getCalculatedStats, getGameHistory } from './utils/localStorage'
+import { recordGameResult, getUserStats, getCalculatedStats, getGameHistory, getTodayGameState, saveTodayGameState } from './utils/localStorage'
 import { 
   initAnalytics, 
   trackGameStart, 
@@ -16,7 +16,7 @@ import {
   trackDailyReturn 
 } from './utils/analytics'
 import * as amplitude from '@amplitude/analytics-browser'
-import type { Puzzle, HintType, UserStats, GameResult } from './types/game'
+import type { Puzzle, HintType, UserStats, GameResult, TodayGameState } from './types/game'
 import './App.css'
 
 function App() {
@@ -51,8 +51,22 @@ function App() {
     const stats = getUserStats()
     setUserStats(stats)
     
-    // Track game start and daily return
-    if (todaysPuzzle) {
+    // Check if user already played today's puzzle
+    const todayDate = getTodayDateString()
+    const todayGameState = getTodayGameState(todayDate)
+    
+    if (todayGameState && todayGameState.puzzleId === todaysPuzzle?.id) {
+      // Restore the game state
+      setGuesses(todayGameState.guesses)
+      setRevealedHints(todayGameState.revealedHints)
+      setIsWon(todayGameState.isWon)
+      setIsLost(todayGameState.isLost)
+      setGameRecorded(todayGameState.gameCompleted)
+      setShowShare(todayGameState.isWon || todayGameState.isLost)
+    }
+    
+    // Track game start and daily return (only for new games)
+    if (todaysPuzzle && !todayGameState) {
       trackGameStart(todaysPuzzle.id, getPuzzleNumber())
       
       // Track daily return if user has played before
@@ -94,6 +108,22 @@ function App() {
     }
   }, [isWon, isLost, puzzle, guesses.length, revealedHints, gameRecorded])
 
+  // Save game state whenever it changes
+  useEffect(() => {
+    if (puzzle) {
+      const gameState: TodayGameState = {
+        puzzleId: puzzle.id,
+        date: getTodayDateString(),
+        guesses,
+        revealedHints,
+        isWon,
+        isLost,
+        gameCompleted: gameRecorded
+      }
+      saveTodayGameState(gameState)
+    }
+  }, [puzzle, guesses, revealedHints, isWon, isLost, gameRecorded])
+
   // Debounced TMDb search function
   const debouncedSearch = useCallback(
     debounce(async (query: string) => {
@@ -125,7 +155,7 @@ function App() {
     debouncedSearch(guess)
   }, [guess, debouncedSearch])
 
-  const stars = calculateStars(guesses.length + 1)
+  const stars = calculateStars(guesses.length + (isWon ? 0 : 1))
   const maxGuesses = 5
 
   // Helper function to remove year from movie title
