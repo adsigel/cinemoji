@@ -433,22 +433,131 @@ function App() {
         
         <Modal isOpen={showDonateModal} onClose={() => setShowDonateModal(false)} title="💚 Support Movemoji">
           <div style={{ textAlign: 'center' }}>
-            <p style={{ marginBottom: '1rem' }}>Enjoying Movemoji? Help keep it running!</p>
-            <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-              Your support helps cover hosting costs and keeps the game ad-free.
+            <p style={{ marginBottom: '0.5rem', fontSize: '1.125rem', fontWeight: '600' }}>
+              Enjoying the daily movie challenge?
             </p>
-            <button style={{
-              backgroundColor: '#10b981',
-              color: 'white',
-              padding: '0.75rem 2rem',
-              borderRadius: '0.75rem',
-              border: 'none',
-              fontWeight: '600',
-              cursor: 'pointer',
-              fontSize: '1rem'
+            <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+              Help keep Movemoji running ad-free with a small contribution!
+            </p>
+            
+            {/* Donation Tiers */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <button
+                onClick={() => window.open('https://ko-fi.com/movemoji', '_blank')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#f8fafc',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  width: '100%',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f1f5f9'
+                  e.currentTarget.style.borderColor = '#6366f1'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f8fafc'
+                  e.currentTarget.style.borderColor = '#e5e7eb'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '1.5rem' }}>☕</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ color: '#374151', fontWeight: '600' }}>Buy us a coffee</div>
+                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>$3 - Keep the servers running</div>
+                  </div>
+                </div>
+                <span style={{ color: '#6366f1', fontSize: '0.875rem' }}>→</span>
+              </button>
+              
+              <button
+                onClick={() => window.open('https://ko-fi.com/movemoji', '_blank')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#f8fafc',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  width: '100%',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f1f5f9'
+                  e.currentTarget.style.borderColor = '#10b981'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f8fafc'
+                  e.currentTarget.style.borderColor = '#e5e7eb'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '1.5rem' }}>🍿</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ color: '#374151', fontWeight: '600' }}>Movie night snacks</div>
+                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>$10 - Support development</div>
+                  </div>
+                </div>
+                <span style={{ color: '#10b981', fontSize: '0.875rem' }}>→</span>
+              </button>
+              
+              <button
+                onClick={() => window.open('https://ko-fi.com/movemoji', '_blank')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#f8fafc',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '0.75rem',
+                  padding: '1rem',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  width: '100%',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f1f5f9'
+                  e.currentTarget.style.borderColor = '#f59e0b'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f8fafc'
+                  e.currentTarget.style.borderColor = '#e5e7eb'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{ fontSize: '1.5rem' }}>🎬</span>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ color: '#374151', fontWeight: '600' }}>Cinema ticket</div>
+                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>$25 - You're amazing!</div>
+                  </div>
+                </div>
+                <span style={{ color: '#f59e0b', fontSize: '0.875rem' }}>→</span>
+              </button>
+            </div>
+            
+            <div style={{ 
+              backgroundColor: '#f0f9ff', 
+              border: '1px solid #bae6fd', 
+              borderRadius: '0.5rem', 
+              padding: '0.75rem',
+              fontSize: '0.875rem',
+              color: '#0369a1'
             }}>
-              ☕ Buy us a coffee
-            </button>
+              💝 All donations help cover hosting costs and support new features!
+            </div>
           </div>
         </Modal>
 
@@ -477,7 +586,7 @@ function App() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
             <div style={{ width: '4rem' }}></div> {/* Spacer for centering */}
             <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#6366f1', margin: 0 }}>
-              Movemoji #{getPuzzleNumber()}
+              Movemoji
             </h1>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button
@@ -538,21 +647,34 @@ function App() {
           </div>
         </header>
 
-        {/* Emoji Plot Display */}
-        <div style={{ 
-          fontSize: '2.5rem', 
-          textAlign: 'center', 
-          padding: '1.5rem', 
-          backgroundColor: 'white', 
-          borderRadius: '1rem', 
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)', 
-          border: '2px solid #f3f4f6',
-          marginBottom: '1.5rem',
-          fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, emoji',
-          lineHeight: '1.2',
-          letterSpacing: '0.1em'
-        }}>
-          {puzzle.emoji_plot}
+        {/* Puzzle Number and Emoji Plot Display */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          {/* Puzzle Number */}
+          <div style={{ 
+            textAlign: 'center', 
+            marginBottom: '0.75rem',
+            fontSize: '1rem',
+            fontWeight: '600',
+            color: '#6366f1'
+          }}>
+            Daily Puzzle #{getPuzzleNumber()}
+          </div>
+          
+          {/* Emoji Plot */}
+          <div style={{ 
+            fontSize: '2.5rem', 
+            textAlign: 'center', 
+            padding: '1.5rem', 
+            backgroundColor: 'white', 
+            borderRadius: '1rem', 
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)', 
+            border: '2px solid #f3f4f6',
+            fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, emoji',
+            lineHeight: '1.2',
+            letterSpacing: '0.1em'
+          }}>
+            {puzzle.emoji_plot}
+          </div>
         </div>
 
         {/* Game Status */}
@@ -799,6 +921,17 @@ function App() {
             Test specific puzzles with{' '}
             <code style={{ backgroundColor: 'white', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>?puzzle=1</code> through{' '}
             <code style={{ backgroundColor: 'white', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>?puzzle=20</code>
+          </p>
+          <p style={{ marginTop: '1rem', fontSize: '0.75rem' }}>
+            Movie data provided by{' '}
+            <a 
+              href="https://www.themoviedb.org/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ color: '#6366f1', textDecoration: 'none' }}
+            >
+              The Movie Database (TMDb)
+            </a>
           </p>
         </footer>
       </div>
