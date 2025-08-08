@@ -9,7 +9,7 @@ export const HINT_INFO: Record<HintType, HintInfo> = {
 };
 
 export const calculateStars = (guessCount: number): number => {
-  return Math.max(0, 6 - guessCount);
+  return Math.max(0, 5 - guessCount);
 };
 
 // Normalize text for comparison by removing punctuation, extra spaces, and converting to lowercase

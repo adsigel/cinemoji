@@ -174,7 +174,7 @@ function App() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  const stars = calculateStars(guesses.length + (isWon ? 0 : 1))
+  const stars = calculateStars(guesses.length)
   const maxGuesses = 5
 
   // Helper function to remove year from movie title
@@ -267,7 +267,7 @@ function App() {
     const shareText = formatShareText(
       getPuzzleNumber(),
       puzzle.emoji_plot,
-      isWon ? stars : 0,
+      stars,
       revealedHints,
       'cinemoji.fun'
     )
@@ -310,8 +310,7 @@ function App() {
   const renderStars = () => {
     if (isLost) return <span style={{ fontSize: '1.5rem' }}>💔</span>
     
-    const starCount = isWon ? calculateStars(guesses.length) : stars
-    const starEmojis = '⭐'.repeat(Math.max(0, starCount))
+    const starEmojis = '⭐'.repeat(Math.max(0, stars))
     const hintEmojis = revealedHints.map(hint => HINT_INFO[hint].emoji).join('')
     
     return (
