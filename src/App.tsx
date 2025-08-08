@@ -497,7 +497,7 @@ function App() {
             <p style={{ marginBottom: '1rem' }}>Welcome to Cinemoji! Guess the movie from emoji clues.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div>
-                <strong>🎯 Goal:</strong> Guess the movie title in 5 tries or less
+                <strong>🎯 Goal:</strong> Guess the movie title in 5 tries or less based on the emoji plot summary
               </div>
               <div>
                 <strong>⭐ Scoring:</strong> Fewer guesses = more stars (max 5⭐)
