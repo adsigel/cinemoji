@@ -15,6 +15,7 @@ import {
   trackAutoSuggestUsed,
   trackDailyReturn 
 } from './utils/analytics'
+import * as amplitude from '@amplitude/analytics-browser'
 import type { Puzzle, HintType, UserStats, GameResult } from './types/game'
 import './App.css'
 
@@ -1000,6 +1001,20 @@ function App() {
         {/* Footer */}
         <footer style={{ textAlign: 'center', fontSize: '0.875rem', color: '#6b7280', marginTop: '2rem' }}>
           <p>A daily movie guessing game 🎬</p>
+          <p style={{ marginTop: '0.5rem' }}>
+            <a 
+              href="mailto:layouts.prints54@icloud.com?subject=Cinemoji Feedback"
+              onClick={() => {
+                // Track feedback link clicks
+                amplitude.track('Feedback Link Clicked', {
+                  timestamp: new Date().toISOString(),
+                });
+              }}
+              style={{ color: '#6366f1', textDecoration: 'none' }}
+            >
+              Send feedback
+            </a>
+          </p>
           <p style={{ marginTop: '1rem', fontSize: '0.75rem' }}>
             Movie data provided by{' '}
             <a 
