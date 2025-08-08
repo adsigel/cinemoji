@@ -3,7 +3,7 @@ import type { HintType } from '../types/game';
 
 // TEMPORARY: Hardcode API key to test if analytics work
 // Replace this with your actual Amplitude API key temporarily
-const AMPLITUDE_API_KEY = 'pq0vVpKibmg6OV1g_VCiKUgEQcu6aIGI';
+const AMPLITUDE_API_KEY = '325dfb50ecaaacbc7314d3dacd3ceec7';
 
 // Debug: Log environment variable status
 console.log('All VITE_ environment variables:', Object.keys(process.env).filter(key => key.startsWith('VITE_')));
@@ -14,9 +14,9 @@ export const initAnalytics = () => {
   console.log('Amplitude API Key loaded:', AMPLITUDE_API_KEY ? 'YES' : 'NO');
   console.log('Key starts with:', AMPLITUDE_API_KEY?.substring(0, 10) + '...');
   console.log('Key length:', AMPLITUDE_API_KEY?.length);
-  console.log('Is placeholder?', AMPLITUDE_API_KEY === 'pq0vVpKibmg6OV1g_VCiKUgEQcu6aIGI');
+  console.log('Using source-specific API key');
   
-  if (AMPLITUDE_API_KEY && AMPLITUDE_API_KEY !== 'pq0vVpKibmg6OV1g_VCiKUgEQcu6aIGI') {
+  if (AMPLITUDE_API_KEY) {
     amplitude.init(AMPLITUDE_API_KEY, {
       defaultTracking: {
         sessions: true,
@@ -25,9 +25,9 @@ export const initAnalytics = () => {
         fileDownloads: false,
       },
     });
-    console.log('Amplitude initialized successfully');
+    console.log('Amplitude initialized successfully with source key');
   } else {
-    console.warn('Amplitude API key placeholder detected. Replace with actual key.');
+    console.warn('Amplitude API key not found. Analytics disabled.');
   }
 };
 
