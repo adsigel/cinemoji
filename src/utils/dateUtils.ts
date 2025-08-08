@@ -1,4 +1,5 @@
 import { puzzles } from '../data/puzzles';
+import type { Puzzle } from '../types/game';
 
 export const getTodayDateString = (): string => {
   const today = new Date();
@@ -51,7 +52,7 @@ const recordPuzzleUsage = (puzzleId: number, date: string): void => {
 };
 
 // Get custom puzzles from localStorage
-const getCustomPuzzles = () => {
+const getCustomPuzzles = (): Puzzle[] => {
   try {
     return JSON.parse(localStorage.getItem('cinemoji_custom_puzzles') || '[]');
   } catch {
@@ -60,7 +61,7 @@ const getCustomPuzzles = () => {
 };
 
 // Get puzzle schedule from localStorage
-const getPuzzleSchedule = () => {
+const getPuzzleSchedule = (): { puzzleId: number; date: string }[] => {
   try {
     return JSON.parse(localStorage.getItem('cinemoji_puzzle_schedule') || '[]');
   } catch {
