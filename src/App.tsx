@@ -90,13 +90,14 @@ function App() {
   // Record game result when game ends
   useEffect(() => {
     if ((isWon || isLost) && puzzle && !gameRecorded) {
+      const finalGuessCount = guesses.length
       const gameResult: GameResult = {
         puzzleId: puzzle.id,
         date: getTodayDateString(),
         completed: isWon,
-        stars: isWon ? calculateStars(guesses.length) : 0,
+        stars: isWon ? calculateStars(finalGuessCount) : 0,
         hintsUsed: revealedHints,
-        attempts: guesses.length
+        attempts: finalGuessCount
       }
       
       const newStats = recordGameResult(gameResult)
@@ -107,8 +108,8 @@ function App() {
       trackGameComplete(
         puzzle.id,
         isWon,
-        isWon ? calculateStars(guesses.length) : 0,
-        guesses.length,
+        isWon ? calculateStars(finalGuessCount) : 0,
+        finalGuessCount,
         revealedHints
       )
     }
