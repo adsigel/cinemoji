@@ -353,7 +353,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '1rem',
-      zIndex: 50
+      zIndex: 50,
+      fontFamily: 'Futura, "Futura PT", "Trebuchet MS", Arial, sans-serif'
     }}>
       <div style={{
         backgroundColor: 'white',

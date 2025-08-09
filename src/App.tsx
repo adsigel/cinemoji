@@ -560,7 +560,7 @@ function App() {
   const taglineHint = 'tagline' as HintType
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'Futura, "Futura PT", "Trebuchet MS", Arial, sans-serif' }}>
       <div style={{ maxWidth: '28rem', margin: '0 auto', padding: '1rem' }}>
         {/* Modals */}
         <Modal isOpen={showStatsModal} onClose={() => setShowStatsModal(false)} title="📊 Your Statistics">

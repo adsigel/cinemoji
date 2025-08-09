@@ -3,12 +3,22 @@ import type { Puzzle } from '../types/game';
 
 export const getTodayDateString = (): string => {
   const today = new Date();
-  return today.toISOString().split('T')[0]; // YYYY-MM-DD format
+  const easternTime = new Date(today.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  const year = easternTime.getFullYear();
+  const month = String(easternTime.getMonth() + 1).padStart(2, '0');
+  const day = String(easternTime.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 export const getDaysSinceEpoch = (date: Date = new Date()): number => {
-  const epoch = new Date('2025-08-08'); // Game launch date (today)
-  const diffTime = date.getTime() - epoch.getTime();
+  // Convert current date to Eastern Time
+  const easternTime = new Date(date.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  
+  // Epoch date in Eastern Time (August 8, 2025)
+  const epoch = new Date('2025-08-08T00:00:00-04:00'); // EDT time
+  
+  // Calculate difference in days
+  const diffTime = easternTime.getTime() - epoch.getTime();
   return Math.floor(diffTime / (1000 * 60 * 60 * 24));
 };
 
