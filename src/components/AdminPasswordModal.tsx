@@ -45,7 +45,7 @@ export function AdminPasswordModal({ isOpen, onClose, onSuccess }: AdminPassword
       justifyContent: 'center',
       padding: '1rem',
       zIndex: 50,
-      fontFamily: 'Futura, "Futura PT", "Trebuchet MS", Arial, sans-serif'
+      fontFamily: '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
       <div style={{
         backgroundColor: 'white',
