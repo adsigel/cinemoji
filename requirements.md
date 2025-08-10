@@ -3,13 +3,14 @@
 ## Overview
 Cinemoji is a daily quiz game where users guess movie titles based on emoji-only plot summaries. Inspired by Wordle, the game emphasizes daily engagement and social sharing while rewarding efficiency with higher scores.
 
-**🚀 CURRENT STATUS: PRODUCTION READY WITH FULL FEATURE SET**
+**🚀 CURRENT STATUS: PRODUCTION READY WITH ADMIN PANEL & PUZZLE SCHEDULING**
 - **Live URL**: https://cinemoji.fun (custom domain configured)
 - **Repository**: https://github.com/adsigel/cinemoji
 - **Auto-deployment**: Vercel deploys automatically from GitHub main branch
 - **Analytics**: Amplitude tracking implemented for user behavior insights
-- **Monetization**: Ko-fi donation integration active
+- **Monetization**: Ko-fi donation integration active with updated tiers
 - **Feedback**: Direct user feedback channel established
+- **Admin Panel**: Full puzzle management and scheduling system implemented
 
 ## Core Concept ✅ **FULLY IMPLEMENTED**
 - **One puzzle per day**: Production-ready daily rotation with no repeats ✅ **IMPLEMENTED**
@@ -18,28 +19,31 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 - **Scoring system**: Star-based scoring with hint emojis ✅ **IMPLEMENTED**
 - **Social sharing**: Native mobile sharing with clipboard fallback ✅ **IMPLEMENTED**
 - **User statistics**: Comprehensive stats with localStorage persistence ✅ **IMPLEMENTED**
+- **Admin panel**: Complete puzzle management and scheduling system ✅ **IMPLEMENTED**
 
 ## Key Features
 
-### Daily Puzzle System ✅ **PRODUCTION READY**
+### Daily Puzzle System ✅ **PRODUCTION READY WITH SCHEDULING**
 - **Smart rotation**: No puzzle repeats until all 28 used, then recycles oldest
 - **Launch date**: August 8, 2025 (game day #1)
 - **Persistence**: Uses localStorage to track puzzle history
 - **Future-proof**: Ready for content expansion beyond initial 28 puzzles
+- **Admin scheduling**: Override auto-selection with specific puzzles for any date
+- **Puzzle preview**: 7-day forecast showing upcoming auto-selected puzzles
 
 ### Advanced Gameplay ✅ **FULLY IMPLEMENTED**
 - **TMDb-powered auto-suggest**: Smart movie search with popularity sorting
 - **Robust matching**: Handles punctuation, articles, international characters
 - **Strategic hints**: 5 hint types with user-controlled revelation order
 - **Mobile-first UI**: Clean, modern interface with system font stack
-- **Modal system**: Help, statistics, and donation modals
+- **Modal system**: Help, statistics, donation, and admin modals
 
 ### User Experience ✅ **COMPREHENSIVE**
 - **Anonymous play**: No account required, localStorage for persistence
 - **Statistics tracking**: Games played, win rate, streaks, perfect games, hint analytics
 - **Native sharing**: Mobile share sheet with custom toast notifications
 - **Feedback system**: Direct email link with analytics tracking
-- **Donation integration**: Ko-fi with three themed tiers
+- **Donation integration**: Ko-fi with three updated tiers ($2, $5, $10)
 
 ### Technical Excellence ✅ **PRODUCTION GRADE**
 - **Analytics**: Amplitude integration tracking all user interactions
@@ -47,6 +51,29 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 - **Performance**: Debounced API calls, optimized rendering
 - **Accessibility**: Proper contrast, button states, mobile-friendly modals
 - **SEO ready**: Meta descriptions, proper HTML structure
+- **Linting**: ESLint configuration with all warnings resolved
+
+## Admin Panel System ✅ **FULLY IMPLEMENTED**
+
+### Core Functionality
+- **Puzzle management**: Add, edit, and remove custom movie puzzles
+- **Puzzle scheduling**: Override auto-selection for specific dates
+- **7-day preview**: See upcoming auto-selected puzzles with date alignment
+- **Custom puzzle creation**: Build new puzzles with full metadata support
+- **TMDb integration**: Auto-fill movie data from The Movie Database
+- **Puzzle validation**: Ensure quality and completeness before saving
+
+### Scheduling System
+- **Date-specific overrides**: Schedule any puzzle for any future date
+- **Priority system**: Scheduled puzzles take precedence over auto-selection
+- **User impact**: All users see scheduled puzzles on specified dates
+- **Admin control**: Full control over daily puzzle selection
+
+### Technical Features
+- **localStorage persistence**: All admin data stored locally
+- **Real-time preview**: Immediate updates to puzzle schedule
+- **Error handling**: Comprehensive validation and error messages
+- **Responsive design**: Works on all device sizes
 
 ## User Statistics System ✅ **FULLY IMPLEMENTED**
 
@@ -78,7 +105,7 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 - **Custom events**: Feedback clicks, donation tier selections
 
 ### Revenue Generation  
-- **Ko-fi integration**: Three donation tiers (Coffee $3, Snacks $10, Ticket $25)
+- **Ko-fi integration**: Three updated donation tiers ($2 "Just say thanks", $5 "Movie snack", $10 "Cinema ticket")
 - **Analytics tracking**: Donation click tracking for conversion insights
 - **User-friendly**: Optional support with themed movie-related tiers
 
@@ -93,20 +120,29 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 - **Structure**: Each puzzle includes movie title, emoji plot, year, director, two main actors, and tagline
 - **Quality**: All puzzles validated with TMDb data for accuracy
 - **Expansion**: Database structure supports continued growth beyond current collection
+- **Custom puzzles**: Admin can add unlimited new puzzles to the library
 
-## Completed Tasks ✅ **PRODUCTION READY**
+## Completed Tasks ✅ **PRODUCTION READY WITH ADMIN PANEL**
 
 ### Core Game Experience
 - [x] **Complete rebranding to Cinemoji** across all platforms
 - [x] **Production daily puzzle system** with smart rotation
 - [x] **Advanced user statistics** with comprehensive tracking
-- [x] **Modal system** for help, stats, and donations
+- [x] **Modal system** for help, stats, donations, and admin access
 - [x] **Mobile-optimized interface** with system font stack
 - [x] **Custom domain setup** (cinemoji.fun)
 
+### Admin Panel & Content Management
+- [x] **Complete admin interface** with puzzle management capabilities
+- [x] **Puzzle scheduling system** for date-specific overrides
+- [x] **Custom puzzle creation** with TMDb data integration
+- [x] **7-day puzzle preview** showing upcoming auto-selections
+- [x] **Puzzle validation** and quality control
+- [x] **Admin password protection** for secure access
+
 ### Analytics & Business
 - [x] **Amplitude analytics integration** with comprehensive event tracking
-- [x] **Ko-fi donation system** with themed tiers and tracking
+- [x] **Ko-fi donation system** with updated themed tiers and tracking
 - [x] **User feedback system** with direct email and analytics
 - [x] **TMDb attribution** in footer for API compliance
 
@@ -116,6 +152,8 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 - [x] **Error handling and fallbacks** for robust user experience
 - [x] **Performance optimization** with debounced API calls
 - [x] **Cross-browser compatibility** and mobile share sheet support
+- [x] **ESLint configuration** with all warnings and errors resolved
+- [x] **CSS optimization** with Tailwind CSS issues resolved
 
 ### User Experience Refinements
 - [x] **Hint usage histogram** in statistics modal
@@ -123,15 +161,16 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 - [x] **Toast notifications** for better feedback
 - [x] **Auto-suggest improvements** with relevance scoring
 - [x] **Guess normalization** for robust matching
+- [x] **Updated donation tiers** with more accessible pricing
 
 ## Next Development Phase 🚀 **READY TO BEGIN**
 
-### Phase 1: Content Management System (High Priority)
-- [ ] **Admin interface** for adding new movie puzzles
-- [ ] **Puzzle validation system** to ensure quality and difficulty balance
+### Phase 1: Content Expansion (High Priority)
+- [x] **Admin interface** for adding new movie puzzles ✅ **COMPLETED**
+- [x] **Puzzle validation system** to ensure quality and difficulty balance ✅ **COMPLETED**
 - [ ] **Bulk import tools** for scaling content creation
-- [ ] **Preview system** for testing new puzzles before publication
-- [ ] **Content scheduling** for planned puzzle releases
+- [x] **Preview system** for testing new puzzles before publication ✅ **COMPLETED**
+- [x] **Content scheduling** for planned puzzle releases ✅ **COMPLETED**
 
 ### Phase 2: User Feedback Integration (High Priority)
 - [ ] **Feedback analysis system** to categorize and prioritize user input
@@ -154,7 +193,7 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 - [ ] **Premium content** for monetization expansion
 - [ ] **API for third-party integrations**
 
-## Technical Architecture ✅ **PRODUCTION READY**
+## Technical Architecture ✅ **PRODUCTION READY WITH ADMIN PANEL**
 
 ### Current Stack
 - **Frontend**: React 18 + TypeScript + Vite
@@ -163,13 +202,16 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 - **Deployment**: Vercel with custom domain
 - **Storage**: localStorage for user data persistence
 - **Monetization**: Ko-fi integration for donations
+- **Admin System**: Full puzzle management and scheduling
 
 ### File Structure
 ```
 src/
-├── components/          # React components (minimal, inline approach)
+├── components/          # React components including AdminPanel
+│   ├── AdminPanel.tsx  # Complete admin interface with scheduling
+│   └── AdminPasswordModal.tsx # Secure admin access
 ├── data/
-│   └── puzzles.ts      # 20 hardcoded movie puzzles with full metadata
+│   └── puzzles.ts      # 28 hardcoded movie puzzles with full metadata
 ├── services/
 │   └── tmdb.ts         # TMDb API with advanced search strategies
 ├── types/
@@ -184,32 +226,35 @@ src/
 └── main.tsx            # Application entry point
 ```
 
-## Success Metrics 📊 **ACHIEVED**
+## Success Metrics 📊 **ACHIEVED + ADMIN PANEL**
 
 ### Current Achievement Status
 - **✅ Complete MVP**: Fully functional game with all planned features
 - **✅ Production Deployment**: Live at cinemoji.fun with custom domain
 - **✅ User Analytics**: Comprehensive tracking for data-driven decisions
-- **✅ Monetization**: Active donation system with tracking
+- **✅ Monetization**: Active donation system with updated tiers
 - **✅ User Feedback**: Direct communication channel established
 - **✅ Mobile Optimization**: Native sharing and responsive design
-- **✅ Content Library**: 20 high-quality puzzles with smart rotation
+- **✅ Content Library**: 28 high-quality puzzles with smart rotation
+- **✅ Admin Panel**: Complete puzzle management and scheduling system
+- **✅ Technical Quality**: All linting issues resolved, CSS optimized
 
 ### Ready for Next Phase
 - **📊 Analytics Data**: User behavior data collection active
 - **💌 Feedback Collection**: Direct user input channel operational  
-- **🎯 Content Expansion**: CMS development can begin with user insights
+- **🎯 Content Expansion**: Admin tools ready for unlimited puzzle creation
+- **📅 Scheduling System**: Full control over daily puzzle selection
 - **📱 PWA Ready**: Technical foundation set for app-like experience
 - **🌍 Scale Preparation**: Architecture supports growth and new features
 
 ---
 
-**🎬 CINEMOJI IS PRODUCTION READY! 🎬**
+**🎬 CINEMOJI IS PRODUCTION READY WITH FULL ADMIN CAPABILITIES! 🎬**
 
-The game has evolved from concept to a complete, production-ready experience. With comprehensive analytics, user feedback systems, and a solid technical foundation, we're positioned to enter the next phase of development focused on content management systems and incorporating user feedback to drive feature priorities.
+The game has evolved from concept to a complete, production-ready experience with comprehensive content management capabilities. With the admin panel, puzzle scheduling system, comprehensive analytics, user feedback systems, and a solid technical foundation, we're positioned to enter the next phase of development focused on content expansion and incorporating user feedback to drive feature priorities.
 
 **Next session focus areas:**
-1. **CMS Development**: Build admin tools for puzzle creation and management
+1. **Content Expansion**: Use admin tools to add new puzzles based on user engagement data
 2. **User Feedback Analysis**: Review collected feedback for feature prioritization  
-3. **Content Strategy**: Plan puzzle expansion based on user engagement data
-4. **Performance Optimization**: PWA features and advanced caching strategies 
+3. **Performance Optimization**: PWA features and advanced caching strategies
+4. **Advanced Analytics**: Build insights dashboard for content creators 
