@@ -22,10 +22,10 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 ## Key Features
 
 ### Daily Puzzle System ✅ **PRODUCTION READY**
-- **Smart rotation**: No puzzle repeats until all 20 used, then recycles oldest
+- **Smart rotation**: No puzzle repeats until all 28 used, then recycles oldest
 - **Launch date**: August 8, 2025 (game day #1)
 - **Persistence**: Uses localStorage to track puzzle history
-- **Future-proof**: Ready for content expansion beyond initial 20 puzzles
+- **Future-proof**: Ready for content expansion beyond initial 28 puzzles
 
 ### Advanced Gameplay ✅ **FULLY IMPLEMENTED**
 - **TMDb-powered auto-suggest**: Smart movie search with popularity sorting
@@ -88,29 +88,11 @@ Cinemoji is a daily quiz game where users guess movie titles based on emoji-only
 - **Ready for iteration**: Feedback collection system in place for improvements
 
 ## Current Puzzle Library ✅ **IMPLEMENTED**
-**20 Movies with Complete Metadata:**
-1. Speed - 🚍💣
-2. Psycho - 👱🚿👩🔪👣
-3. Poltergeist - 🏠👩📺💥🌀💡🔆💡👵🛀👩👿💫🌀💡💥🚫🚘🏥
-4. Inception - 🇯🇵😴➡️😴💰✈️😴😴😴➡️😴➡️😴☔️🚄🚓☔️😴🔫➡️😴❄️😴🔫🏢🔙😴➡️👫😳
-5. The Three Amigos - 🇲🇽🌵⛪️😄😀😃🐎🎤😚🌳🎤🔥🏕👀✈️🐎🎉🎂👨🔫🔫🔫💃
-6. The Shawshank Redemption - 👦🏢😐😬😏📝📚🎧🔨🔦💩😅💰👴🔫⛵️🌅
-7. Ferris Bueller's Day Off - 😰😩😉🚗🙋🏙🍸🎨⚾️🎤🎉🚗💥👟😎
-8. Back to the Future - ⏰⏰🎸😀👴⏱🚙⌛️⏳😀👦🚙💩🎸😘🌩⏳⌛️😊
-9. You've Got Mail - 👦👧💻📚🌹💞
-10. Big - 👦🖥🎠👳💤👨🌠🎹🤖👨‍❤️‍💋‍👨🎮👳👦
-11. Ace Ventura: Pet Detective - 😀🔍🐶🚙🏈🐬⁉️👩🔀👨😖🐬🔍😉
-12. Wall-E - 🌏🤖🌱😍🚀🌌💑🌎
-13. The Wizard of Oz - 🌪🏠👧🌽🦁🤖🛣🐒😈💦👠🏠
-14. Pulp Fiction - 👨🏻👨🏿🍔🔫💼👨🏻👩💃😵💉😳⌚️🚗💥🤐🗡🚗🔫🐺👦👧💰
-15. Forrest Gump - 🚍👦🏃🏈👨👨🏿🇻🇳🏓🍤🏃👧💀
-16. The Matrix - 👦☎️👨🏿💊🖥🌏🤖🔫🔫🚁🔫🔫
-17. The Usual Suspects - 🚢🔥🔙👮😜😒😡😯👻🔥🔫📠☕️💥👣😏
-18. Ghostbusters - 📚👻👵🏻😏🤓😳👩🏻🎻👻👩🏻➡️🐶🌩👻🔫😏👩🏻💏
-19. Mrs. Doubtfire - 👨‍👩‍👧‍👦🐐🐴🎂🎉💔👨➡️👵🏻❤️👧👧👦
-20. Se7en - 👮🏻👮🏿🍝💀🔪💀🛏😖🔪💀💊💀🚔📦🔫💀💀
-
-*Each puzzle includes: movie title, emoji plot, year, director, two main actors, and tagline*
+**28 Movies with Complete Metadata**
+- **Content**: Diverse collection spanning multiple decades and genres
+- **Structure**: Each puzzle includes movie title, emoji plot, year, director, two main actors, and tagline
+- **Quality**: All puzzles validated with TMDb data for accuracy
+- **Expansion**: Database structure supports continued growth beyond current collection
 
 ## Completed Tasks ✅ **PRODUCTION READY**
 

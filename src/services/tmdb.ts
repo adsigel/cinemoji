@@ -83,7 +83,7 @@ export async function searchMovies(query: string): Promise<MovieSuggestion[]> {
 
   try {
     const searchStrategies = getSearchStrategies(query);
-    let allResults: TMDbMovie[] = [];
+    const allResults: TMDbMovie[] = [];
     
     // Try each search strategy
     for (const searchQuery of searchStrategies) {
@@ -162,6 +162,7 @@ export async function searchMovies(query: string): Promise<MovieSuggestion[]> {
 }
 
 // Debounce function to limit API calls
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number

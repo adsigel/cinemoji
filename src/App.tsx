@@ -132,6 +132,7 @@ function App() {
   }, [puzzle, guesses, revealedHints, isWon, isLost, gameRecorded])
 
   // Debounced TMDb search function
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
     debounce(async (query: string) => {
       if (query.length < 2 || isWon || isLost) {
@@ -299,7 +300,7 @@ function App() {
       await navigator.clipboard.writeText(shareText)
       shareMethod = 'clipboard'
       showToastMessage('Results copied to clipboard! 📋')
-    } catch (err) {
+    } catch {
       // Final fallback to showing the text
       shareMethod = 'prompt'
       prompt('Copy this text to share:', shareText)
@@ -630,7 +631,7 @@ function App() {
                   <span style={{ fontSize: '1.5rem' }}>☕</span>
                   <div style={{ textAlign: 'left' }}>
                     <div style={{ color: '#374151', fontWeight: '600' }}>Buy us a coffee</div>
-                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>$3 - Keep the servers running</div>
+                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>$2 - Just say thanks</div>
                   </div>
                 </div>
                 <span style={{ color: '#6366f1', fontSize: '0.875rem' }}>→</span>
@@ -665,7 +666,7 @@ function App() {
                   <span style={{ fontSize: '1.5rem' }}>🍿</span>
                   <div style={{ textAlign: 'left' }}>
                     <div style={{ color: '#374151', fontWeight: '600' }}>Movie night snacks</div>
-                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>$10 - Support development</div>
+                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>$5 - Movie snack</div>
                   </div>
                 </div>
                 <span style={{ color: '#10b981', fontSize: '0.875rem' }}>→</span>
@@ -700,7 +701,7 @@ function App() {
                   <span style={{ fontSize: '1.5rem' }}>🎬</span>
                   <div style={{ textAlign: 'left' }}>
                     <div style={{ color: '#374151', fontWeight: '600' }}>Cinema ticket</div>
-                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>$25 - You're amazing!</div>
+                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>$10 - Cinema ticket</div>
                   </div>
                 </div>
                 <span style={{ color: '#f59e0b', fontSize: '0.875rem' }}>→</span>

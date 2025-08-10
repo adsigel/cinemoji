@@ -1,21 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { puzzles } from '../data/puzzles';
 import type { Puzzle } from '../types/game';
 
 // TMDb API service for movie data
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_READ_ACCESS_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4NDVhNDcyMTM0YWEzYTU1ZDUwZTFhMjg1MjI5YzgwYiIsIm5iZiI6MTc1NDU5NjYwMy44MzcsInN1YiI6IjY4OTUwNGZiZjhmMTI1OGJmOGEzMmVhZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.MVJed1DPk8_ZV7qnkMJYxikdlj-VgmXhnOA7BK7rDt4';
-
-interface TMDbMovie {
-  id: number;
-  title: string;
-  release_date: string;
-  tagline: string;
-  credits?: {
-    cast: Array<{ name: string; order: number }>;
-    crew: Array<{ name: string; job: string }>;
-  };
-}
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -27,8 +16,14 @@ interface PuzzleSchedule {
   puzzleId: number;
 }
 
+interface PuzzlePreview {
+  date: string;
+  puzzle: Puzzle;
+  reason: string;
+}
+
 export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
-  const [activeTab, setActiveTab] = useState<'add' | 'stats' | 'schedule' | 'user'>('add');
+  const [activeTab, setActiveTab] = useState<'add' | 'stats' | 'schedule' | 'user' | 'preview'>('add');
   const [newPuzzle, setNewPuzzle] = useState<Partial<Puzzle>>({
     movie_title: '',
     emoji_plot: '',
@@ -46,12 +41,34 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [selectedPuzzleId, setSelectedPuzzleId] = useState<number | ''>('');
   const [statsResetDate, setStatsResetDate] = useState('');
   const [userResetId, setUserResetId] = useState('');
+  const [puzzlePreview, setPuzzlePreview] = useState<PuzzlePreview[]>([]);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadPuzzleSchedule();
+  const getCustomPuzzles = (): Puzzle[] => {
+    try {
+      return JSON.parse(localStorage.getItem('cinemoji_custom_puzzles') || '[]');
+    } catch {
+      return [];
     }
-  }, [isOpen]);
+  };
+
+  const allPuzzles = useMemo(() => [...puzzles, ...getCustomPuzzles()], []);
+  const sortedPuzzles = useMemo(() => [...allPuzzles].sort((a, b) => a.movie_title.localeCompare(b.movie_title)), [allPuzzles]);
+
+  // Simulate the game's puzzle selection logic for a given date
+  const simulatePuzzleSelection = useCallback((date: Date): Puzzle => {
+    // Use the same logic as the actual game
+    // Create epoch date in local timezone to avoid timezone conversion issues
+    // If today (Aug 10) should show Poltergeist, and Aug 9 shows as day 0, then epoch should be Aug 9
+    const epoch = new Date(2025, 7, 9); // Month is 0-indexed, so 7 = August, day 9
+    epoch.setHours(0, 0, 0, 0); // Set to start of day
+    
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0); // Set to start of day
+    
+    const daysSinceEpoch = Math.floor((targetDate.getTime() - epoch.getTime()) / (1000 * 60 * 60 * 24));
+    const puzzleIndex = Math.abs(daysSinceEpoch) % allPuzzles.length;
+    return allPuzzles[puzzleIndex];
+  }, [allPuzzles]);
 
   const loadPuzzleSchedule = () => {
     try {
@@ -72,6 +89,51 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       console.error('Error saving puzzle schedule:', error);
     }
   };
+
+  // Generate preview of next 7 days of puzzles
+  const generatePuzzlePreview = useCallback(() => {
+    const preview: PuzzlePreview[] = [];
+    const today = new Date();
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dateString = date.toISOString().split('T')[0];
+      
+      // Check if there's a scheduled puzzle for this date
+      const scheduled = puzzleSchedule.find((s: PuzzleSchedule) => s.date === dateString);
+      if (scheduled) {
+        const puzzle = allPuzzles.find(p => p.id === scheduled.puzzleId);
+        if (puzzle) {
+          preview.push({
+            date: dateString,
+            puzzle,
+            reason: 'Scheduled'
+          });
+          continue;
+        }
+      }
+      
+      // Simulate what the game logic would select
+      const puzzle = simulatePuzzleSelection(date);
+      preview.push({
+        date: dateString,
+        puzzle,
+        reason: 'Auto-selected'
+      });
+    }
+    
+    setPuzzlePreview(preview);
+  }, [puzzleSchedule, allPuzzles, simulatePuzzleSelection]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadPuzzleSchedule();
+      generatePuzzlePreview();
+    }
+  }, [isOpen, generatePuzzlePreview]);
+
+
 
   const handleAddPuzzle = () => {
     if (!newPuzzle.movie_title || !newPuzzle.emoji_plot) {
@@ -113,102 +175,109 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       }
     });
 
-    alert('Puzzle added successfully! (Note: This is stored locally for demo purposes)');
+    alert('Puzzle added successfully!');
   };
 
   const exportCustomPuzzles = () => {
-    const customPuzzles = JSON.parse(localStorage.getItem('cinemoji_custom_puzzles') || '[]');
-    if (customPuzzles.length === 0) {
-      alert('No custom puzzles to export');
-      return;
-    }
-
-    const dataStr = JSON.stringify(customPuzzles, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'cinemoji_custom_puzzles.json';
-    link.click();
-    URL.revokeObjectURL(url);
-    
-    alert(`Exported ${customPuzzles.length} custom puzzles to cinemoji_custom_puzzles.json`);
-  };
-
-  const fetchTMDbData = async (movieTitle: string) => {
-    if (!movieTitle.trim()) {
-      alert('Please enter a movie title first');
-      return;
-    }
-
     try {
-      // Search for the movie
-      const searchResponse = await fetch(
-        `${TMDB_BASE_URL}/search/movie?query=${encodeURIComponent(movieTitle)}&include_adult=false&language=en-US&page=1`,
-        {
-          headers: {
-            'Authorization': `Bearer ${TMDB_READ_ACCESS_TOKEN}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (!searchResponse.ok) {
-        throw new Error('Failed to search for movie');
-      }
-
-      const searchData = await searchResponse.json();
-      if (!searchData.results || searchData.results.length === 0) {
-        alert('No movie found with that title');
+      const customPuzzles = JSON.parse(localStorage.getItem('cinemoji_custom_puzzles') || '[]');
+      if (customPuzzles.length === 0) {
+        alert('No custom puzzles to export');
         return;
       }
 
-      const movie = searchData.results[0]; // Get the first (most relevant) result
+      const dataStr = JSON.stringify(customPuzzles, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'cinemoji_custom_puzzles.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting puzzles:', error);
+      alert('Error exporting puzzles');
+    }
+  };
 
-      // Get detailed movie info including credits
-      const detailResponse = await fetch(
-        `${TMDB_BASE_URL}/movie/${movie.id}?append_to_response=credits&language=en-US`,
-        {
-          headers: {
-            'Authorization': `Bearer ${TMDB_READ_ACCESS_TOKEN}`,
-            'Content-Type': 'application/json',
-          },
+  const fetchTMDbData = async (movieTitle: string) => {
+    try {
+      const response = await fetch(`${TMDB_BASE_URL}/search/movie?query=${encodeURIComponent(movieTitle)}`, {
+        headers: {
+          'Authorization': `Bearer ${TMDB_READ_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json'
         }
-      );
+      });
 
-      if (!detailResponse.ok) {
-        throw new Error('Failed to get movie details');
+      if (!response.ok) {
+        throw new Error('Failed to fetch from TMDb');
       }
 
-      const movieData: TMDbMovie = await detailResponse.json();
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        const movie = data.results[0];
+        
+        // Fetch detailed movie info including credits
+        const detailResponse = await fetch(`${TMDB_BASE_URL}/movie/${movie.id}?append_to_response=credits`, {
+          headers: {
+            'Authorization': `Bearer ${TMDB_READ_ACCESS_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-      // Extract cast and crew
-      const cast = movieData.credits?.cast || [];
-      const crew = movieData.credits?.crew || [];
-      
-      const director = crew.find(person => person.job === 'Director')?.name || '';
-      const actor1 = cast[0]?.name || '';
-      const actor2 = cast[1]?.name || '';
-      const year = movieData.release_date ? new Date(movieData.release_date).getFullYear().toString() : '';
-      const tagline = movieData.tagline || '';
+        if (detailResponse.ok) {
+          const detailData = await detailResponse.json();
+          
+          // Auto-fill the form with TMDb data
+          setNewPuzzle((prev: Partial<Puzzle>) => ({
+            ...prev,
+            hints: {
+              ...prev.hints!,
+              year: detailData.release_date?.split('-')[0] || '',
+              tagline: detailData.tagline || ''
+            }
+          }));
 
-      // Update the form
-      setNewPuzzle(prev => ({
-        ...prev,
-        movie_title: movieData.title,
-        hints: {
-          actor1,
-          actor2,
-          year,
-          director,
-          tagline
+          // Auto-fill actors if available
+          if (detailData.credits?.cast) {
+            const cast = detailData.credits.cast.slice(0, 2);
+            if (cast[0]) {
+              setNewPuzzle((prev: Partial<Puzzle>) => ({
+                ...prev,
+                hints: {
+                  ...prev.hints!,
+                  actor1: cast[0].name
+                }
+              }));
+            }
+            if (cast[1]) {
+              setNewPuzzle((prev: Partial<Puzzle>) => ({
+                ...prev,
+                hints: {
+                  ...prev.hints!,
+                  actor2: cast[1].name
+                }
+              }));
+            }
+          }
+
+          // Auto-fill director if available
+          if (detailData.credits?.crew) {
+            const director = detailData.credits.crew.find((person: { name: string; job: string }) => person.job === 'Director');
+            if (director) {
+              setNewPuzzle((prev: Partial<Puzzle>) => ({
+                ...prev,
+                hints: {
+                  ...prev.hints!,
+                  director: director.name
+                }
+              }));
+            }
+          }
         }
-      }));
-
-      alert(`Auto-filled data for "${movieData.title}" (${year})`);
+      }
     } catch (error) {
       console.error('Error fetching TMDb data:', error);
-      alert('Failed to fetch movie data. Please check the title and try again.');
     }
   };
 
@@ -230,12 +299,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     savePuzzleSchedule(newSchedule);
     setSelectedDate('');
     setSelectedPuzzleId('');
-    alert('Puzzle scheduled successfully!');
+    generatePuzzlePreview(); // Refresh preview
   };
 
   const handleRemoveSchedule = (date: string) => {
-    const newSchedule = puzzleSchedule.filter(s => s.date !== date);
+    const newSchedule = puzzleSchedule.filter((s: PuzzleSchedule) => s.date !== date);
     savePuzzleSchedule(newSchedule);
+    generatePuzzlePreview(); // Refresh preview
   };
 
   const handleResetStats = () => {
@@ -244,100 +314,62 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       return;
     }
 
-    if (confirm(`Are you sure you want to reset all user stats for ${statsResetDate}? This cannot be undone.`)) {
-      // Clear all localStorage data for that date
-      const keysToRemove = [
-        'cinemoji_user_stats',
-        'cinemoji_game_history',
-        'cinemoji_puzzle_history'
-      ];
-
-      keysToRemove.forEach(key => {
-        try {
-          const stored = localStorage.getItem(key);
-          if (stored) {
-            const data = JSON.parse(stored);
-            // Filter out entries for the selected date
-            if (Array.isArray(data)) {
-              const filtered = data.filter((item: any) => item.date !== statsResetDate);
-              localStorage.setItem(key, JSON.stringify(filtered));
-            }
+    if (confirm(`Are you sure you want to reset all user statistics for ${statsResetDate}? This action cannot be undone.`)) {
+      try {
+        // Get current stats
+        const currentStats = JSON.parse(localStorage.getItem('cinemoji_user_stats') || '{}');
+        
+        // Remove entries for the selected date
+        const filteredStats = Object.keys(currentStats).reduce((acc: Record<string, unknown>, key) => {
+          if (key !== statsResetDate) {
+            acc[key] = currentStats[key];
           }
-        } catch (error) {
-          console.error(`Error resetting stats for ${key}:`, error);
-        }
-      });
-
-      alert('Stats reset successfully!');
-      setStatsResetDate('');
+          return acc;
+        }, {});
+        
+        localStorage.setItem('cinemoji_user_stats', JSON.stringify(filteredStats));
+        alert('Statistics reset successfully');
+        setStatsResetDate('');
+      } catch (error) {
+        console.error('Error resetting stats:', error);
+        alert('Error resetting statistics');
+      }
     }
   };
 
   const handleResetUser = () => {
-    if (!userResetId) {
-      alert('Please enter a user ID');
-      return;
-    }
-
-    if (confirm(`Are you sure you want to reset all stats for user ${userResetId}? This cannot be undone.`)) {
-      // Clear all localStorage data for this user
-      const keysToRemove = [
-        'cinemoji_user_stats',
-        'cinemoji_game_history',
-        'cinemoji_puzzle_history',
-        'cinemoji_today_game_state'
-      ];
-
-      keysToRemove.forEach(key => {
-        try {
-          localStorage.removeItem(key);
-        } catch (error) {
-          console.error(`Error resetting user data for ${key}:`, error);
+    if (confirm(`Are you sure you want to reset user data${userResetId ? ` for user ${userResetId}` : ''}? This action cannot be undone.`)) {
+      try {
+        if (userResetId) {
+          // Reset specific user
+          const currentStats = JSON.parse(localStorage.getItem('cinemoji_user_stats') || '{}');
+          delete currentStats[userResetId];
+          localStorage.setItem('cinemoji_user_stats', JSON.stringify(currentStats));
+        } else {
+          // Reset current user
+          localStorage.removeItem('cinemoji_user_stats');
+          localStorage.removeItem('cinemoji_game_history');
+          localStorage.removeItem('cinemoji_today_game_state');
         }
-      });
-
-      alert('User data reset successfully!');
-      setUserResetId('');
-    }
-  };
-
-  const getCustomPuzzles = (): Puzzle[] => {
-    try {
-      return JSON.parse(localStorage.getItem('cinemoji_custom_puzzles') || '[]');
-    } catch {
-      return [];
+        
+        alert('User data reset successfully');
+        setUserResetId('');
+      } catch (error) {
+        console.error('Error resetting user:', error);
+        alert('Error resetting user data');
+      }
     }
   };
 
   const getPuzzleLastPlayed = (puzzleId: number): string | null => {
     try {
       const history = JSON.parse(localStorage.getItem('cinemoji_puzzle_history') || '[]');
-      const entry = history.find((entry: any) => entry.puzzleId === puzzleId);
+      const entry = history.find((h: { puzzleId: number; date: string }) => h.puzzleId === puzzleId);
       return entry ? entry.date : null;
     } catch {
       return null;
     }
   };
-
-  const allPuzzles = [...puzzles, ...getCustomPuzzles()];
-  
-  // Sort puzzles: unplayed first, then by last played date (oldest first)
-  const sortedPuzzles = allPuzzles.sort((a, b) => {
-    const aLastPlayed = getPuzzleLastPlayed(a.id);
-    const bLastPlayed = getPuzzleLastPlayed(b.id);
-    
-    // If both are unplayed, sort by ID
-    if (!aLastPlayed && !bLastPlayed) {
-      return a.id - b.id;
-    }
-    
-    // If only one is unplayed, put unplayed first
-    if (!aLastPlayed) return -1;
-    if (!bLastPlayed) return 1;
-    
-    // Both have been played, sort by date (oldest first)
-    return new Date(aLastPlayed).getTime() - new Date(bLastPlayed).getTime();
-  });
 
   if (!isOpen) return null;
 
@@ -348,157 +380,89 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.75)',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1rem',
-      zIndex: 50,
-      fontFamily: '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      zIndex: 1000
     }}>
       <div style={{
         backgroundColor: 'white',
-        borderRadius: '0.5rem',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        width: '100%',
-        maxWidth: '72rem',
-        height: '95vh',
-        overflow: 'hidden'
+        borderRadius: '0.75rem',
+        padding: '2rem',
+        maxWidth: '90vw',
+        maxHeight: '90vh',
+        overflow: 'auto',
+        position: 'relative'
       }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '1.5rem',
-          borderBottom: '1px solid #e5e7eb'
-        }}>
-          <h2 style={{
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            background: 'none',
+            border: 'none',
             fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#1f2937'
-          }}>🎬 Cinemoji Admin Panel</h2>
-          <button
-            onClick={onClose}
-            style={{
-              color: '#6b7280',
-              fontSize: '1.5rem',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#374151'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
-          >
-            ×
-          </button>
+            cursor: 'pointer',
+            color: '#6b7280'
+          }}
+        >
+          ×
+        </button>
+
+        {/* Header */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#111827' }}>
+            🎬 Cinemoji Admin Panel
+          </h2>
         </div>
 
         {/* Tab Navigation */}
-        <div style={{
-          display: 'flex',
-          borderBottom: '1px solid #e5e7eb'
+        <div style={{ 
+          display: 'flex', 
+          borderBottom: '1px solid #e5e7eb', 
+          marginBottom: '2rem',
+          gap: '0.5rem'
         }}>
-          <button
-            onClick={() => setActiveTab('add')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontWeight: '500',
-              borderBottom: activeTab === 'add' ? '2px solid #7c3aed' : 'none',
-              color: activeTab === 'add' ? '#7c3aed' : '#6b7280',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== 'add') e.currentTarget.style.color = '#374151';
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== 'add') e.currentTarget.style.color = '#6b7280';
-            }}
-          >
-            Add Puzzle
-          </button>
-          <button
-            onClick={() => setActiveTab('schedule')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontWeight: '500',
-              borderBottom: activeTab === 'schedule' ? '2px solid #7c3aed' : 'none',
-              color: activeTab === 'schedule' ? '#7c3aed' : '#6b7280',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== 'schedule') e.currentTarget.style.color = '#374151';
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== 'schedule') e.currentTarget.style.color = '#6b7280';
-            }}
-          >
-            Schedule Puzzles
-          </button>
-          <button
-            onClick={() => setActiveTab('stats')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontWeight: '500',
-              borderBottom: activeTab === 'stats' ? '2px solid #7c3aed' : 'none',
-              color: activeTab === 'stats' ? '#7c3aed' : '#6b7280',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== 'stats') e.currentTarget.style.color = '#374151';
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== 'stats') e.currentTarget.style.color = '#6b7280';
-            }}
-          >
-            Reset Stats
-          </button>
-          <button
-            onClick={() => setActiveTab('user')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              fontWeight: '500',
-              borderBottom: activeTab === 'user' ? '2px solid #7c3aed' : 'none',
-              color: activeTab === 'user' ? '#7c3aed' : '#6b7280',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== 'user') e.currentTarget.style.color = '#374151';
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== 'user') e.currentTarget.style.color = '#6b7280';
-            }}
-          >
-            Reset User
-          </button>
+          {[
+            { id: 'add', label: 'Add Puzzle' },
+            { id: 'schedule', label: 'Schedule Puzzles' },
+            { id: 'preview', label: 'Puzzle Preview' },
+            { id: 'stats', label: 'Reset Stats' },
+            { id: 'user', label: 'Reset User' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as 'add' | 'stats' | 'schedule' | 'user' | 'preview')}
+              style={{
+                padding: '0.75rem 1rem',
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                color: activeTab === tab.id ? '#7c3aed' : '#6b7280',
+                borderBottom: activeTab === tab.id ? '2px solid #7c3aed' : '2px solid transparent',
+                transition: 'all 0.2s'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        <div style={{
-          padding: '1.5rem',
-          overflowY: 'auto',
-          height: 'calc(95vh - 140px)'
-        }}>
+        {/* Tab Content */}
+        <div style={{ minHeight: '400px' }}>
           {/* Add Puzzle Tab */}
           {activeTab === 'add' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <h3 style={{
-                fontSize: '1.25rem',
-                fontWeight: '600',
-                color: '#1f2937'
-              }}>Add New Puzzle</h3>
-              
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '1.5rem'
-              }}>
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827' }}>
+                Add New Puzzle
+              </h3>
+
+              <div style={{ display: 'grid', gap: '1rem' }}>
                 <div>
                   <label style={{
                     display: 'block',
@@ -507,7 +471,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     color: '#374151',
                     marginBottom: '0.5rem'
                   }}>
-                    Movie Title *
+                    Movie Title
                   </label>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <input
@@ -524,22 +488,19 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       placeholder="e.g., The Matrix"
                     />
                     <button
-                      type="button"
-                      onClick={() => fetchTMDbData(newPuzzle.movie_title || '')}
+                      onClick={() => newPuzzle.movie_title && fetchTMDbData(newPuzzle.movie_title)}
                       style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#2563eb',
+                        padding: '0.5rem 0.75rem',
+                        backgroundColor: '#6366f1',
                         color: 'white',
-                        borderRadius: '0.375rem',
                         border: 'none',
+                        borderRadius: '0.375rem',
                         cursor: 'pointer',
-                        fontSize: '0.875rem'
+                        fontSize: '0.875rem',
+                        whiteSpace: 'nowrap'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                      title="Auto-fill from TMDb"
                     >
-                      🎬 TMDb
+                      Fetch TMDb Data
                     </button>
                   </div>
                 </div>
@@ -552,34 +513,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     color: '#374151',
                     marginBottom: '0.5rem'
                   }}>
-                    Difficulty
-                  </label>
-                  <select
-                    value={newPuzzle.difficulty}
-                    onChange={(e) => setNewPuzzle({...newPuzzle, difficulty: e.target.value as 'easy' | 'medium' | 'hard'})}
-                    style={{
-                      width: '100%',
-                      padding: '0.5rem 0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.375rem',
-                      fontSize: '0.875rem'
-                    }}
-                  >
-                    <option value="easy">Easy</option>
-                    <option value="medium">Medium</option>
-                    <option value="hard">Hard</option>
-                  </select>
-                </div>
-
-                <div style={{ gridColumn: 'span 2' }}>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '0.5rem'
-                  }}>
-                    Emoji Plot *
+                    Emoji Plot
                   </label>
                   <input
                     type="text"
@@ -595,7 +529,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     placeholder="e.g., 👦☎️👨🏿💊🖥🌏🤖🔫🔫🚁🔫🔫"
                   />
                   <p style={{
-                    fontSize: '0.875rem',
+                    fontSize: '0.75rem',
                     color: '#6b7280',
                     marginTop: '0.25rem'
                   }}>
@@ -611,15 +545,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     color: '#374151',
                     marginBottom: '0.5rem'
                   }}>
-                    Actor 1
+                    Difficulty
                   </label>
-                  <input
-                    type="text"
-                    value={newPuzzle.hints?.actor1}
-                    onChange={(e) => setNewPuzzle({
-                      ...newPuzzle, 
-                      hints: {...newPuzzle.hints!, actor1: e.target.value}
-                    })}
+                  <select
+                    value={newPuzzle.difficulty}
+                                          onChange={(e) => setNewPuzzle({...newPuzzle, difficulty: e.target.value as 'easy' | 'medium' | 'hard'})}
                     style={{
                       width: '100%',
                       padding: '0.5rem 0.75rem',
@@ -627,92 +557,127 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       borderRadius: '0.375rem',
                       fontSize: '0.875rem'
                     }}
-                    placeholder="e.g., Keanu Reeves"
-                  />
+                  >
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                  </select>
                 </div>
 
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '0.5rem'
-                  }}>
-                    Actor 2
-                  </label>
-                  <input
-                    type="text"
-                    value={newPuzzle.hints?.actor2}
-                    onChange={(e) => setNewPuzzle({
-                      ...newPuzzle, 
-                      hints: {...newPuzzle.hints!, actor2: e.target.value}
-                    })}
-                    style={{
-                      width: '100%',
-                      padding: '0.5rem 0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.375rem',
-                      fontSize: '0.875rem'
-                    }}
-                    placeholder="e.g., Laurence Fishburne"
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      color: '#374151',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Actor 1
+                    </label>
+                    <input
+                      type="text"
+                      value={newPuzzle.hints?.actor1}
+                      onChange={(e) => setNewPuzzle({
+                        ...newPuzzle, 
+                        hints: {...newPuzzle.hints!, actor1: e.target.value}
+                      })}
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem 0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem'
+                      }}
+                      placeholder="e.g., Keanu Reeves"
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      color: '#374151',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Actor 2
+                    </label>
+                    <input
+                      type="text"
+                      value={newPuzzle.hints?.actor2}
+                      onChange={(e) => setNewPuzzle({
+                        ...newPuzzle, 
+                        hints: {...newPuzzle.hints!, actor2: e.target.value}
+                      })}
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem 0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem'
+                      }}
+                      placeholder="e.g., Laurence Fishburne"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '0.5rem'
-                  }}>
-                    Year
-                  </label>
-                  <input
-                    type="text"
-                    value={newPuzzle.hints?.year}
-                    onChange={(e) => setNewPuzzle({
-                      ...newPuzzle, 
-                      hints: {...newPuzzle.hints!, year: e.target.value}
-                    })}
-                    style={{
-                      width: '100%',
-                      padding: '0.5rem 0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.375rem',
-                      fontSize: '0.875rem'
-                    }}
-                    placeholder="e.g., 1999"
-                  />
-                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      color: '#374151',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Year
+                    </label>
+                    <input
+                      type="text"
+                      value={newPuzzle.hints?.year}
+                      onChange={(e) => setNewPuzzle({
+                        ...newPuzzle, 
+                        hints: {...newPuzzle.hints!, year: e.target.value}
+                      })}
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem 0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem'
+                      }}
+                      placeholder="e.g., 1999"
+                    />
+                  </div>
 
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '0.875rem',
-                    fontWeight: '500',
-                    color: '#374151',
-                    marginBottom: '0.5rem'
-                  }}>
-                    Director
-                  </label>
-                  <input
-                    type="text"
-                    value={newPuzzle.hints?.director}
-                    onChange={(e) => setNewPuzzle({
-                      ...newPuzzle, 
-                      hints: {...newPuzzle.hints!, director: e.target.value}
-                    })}
-                    style={{
-                      width: '100%',
-                      padding: '0.5rem 0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.375rem',
-                      fontSize: '0.875rem'
-                    }}
-                    placeholder="e.g., Lana Wachowski"
-                  />
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      color: '#374151',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Director
+                    </label>
+                    <input
+                      type="text"
+                      value={newPuzzle.hints?.director}
+                      onChange={(e) => setNewPuzzle({
+                        ...newPuzzle, 
+                        hints: {...newPuzzle.hints!, director: e.target.value}
+                      })}
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem 0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem'
+                      }}
+                      placeholder="e.g., Lana Wachowski"
+                    />
+                  </div>
                 </div>
 
                 <div style={{ gridColumn: 'span 2' }}>
@@ -787,30 +752,56 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
           {/* Schedule Puzzles Tab */}
           {activeTab === 'schedule' && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Schedule Puzzles</h3>
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827' }}>
+                Schedule Puzzles
+              </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Date
                   </label>
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem'
+                    }}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '0.5rem'
+                  }}>
                     Puzzle
                   </label>
                   <select
                     value={selectedPuzzleId}
                     onChange={(e) => setSelectedPuzzleId(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    style={{
+                      width: '100%',
+                      padding: '0.5rem 0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem'
+                    }}
                   >
                     <option value="">Select a puzzle...</option>
                     {sortedPuzzles.map(puzzle => {
@@ -829,30 +820,68 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               <button
                 onClick={handleSchedulePuzzle}
                 disabled={!selectedDate || !selectedPuzzleId}
-                className="w-full bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                style={{
+                  width: '100%',
+                  backgroundColor: '#7c3aed',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.375rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  opacity: (!selectedDate || !selectedPuzzleId) ? 0.5 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedDate && selectedPuzzleId) {
+                    e.currentTarget.style.backgroundColor = '#6d28d9';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedDate && selectedPuzzleId) {
+                    e.currentTarget.style.backgroundColor = '#7c3aed';
+                  }
+                }}
               >
                 Schedule Puzzle
               </button>
 
-              <div className="mt-8">
-                <h4 className="text-lg font-medium mb-4">Current Schedule</h4>
+              <div style={{ marginTop: '2rem' }}>
+                <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#111827' }}>
+                  Current Schedule
+                </h4>
                 {puzzleSchedule.length === 0 ? (
-                  <p className="text-gray-500">No puzzles scheduled</p>
+                  <p style={{ color: '#6b7280' }}>No puzzles scheduled</p>
                 ) : (
-                  <div className="space-y-2">
+                  <div style={{ display: 'grid', gap: '0.5rem' }}>
                     {puzzleSchedule.map(schedule => {
                       const puzzle = allPuzzles.find(p => p.id === schedule.puzzleId);
                       return (
-                        <div key={schedule.date} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                        <div key={schedule.date} style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '0.75rem',
+                          backgroundColor: '#f9fafb',
+                          borderRadius: '0.375rem'
+                        }}>
                           <div>
-                            <span className="font-medium">{schedule.date}</span>
-                            <span className="ml-4 text-gray-600">
+                            <span style={{ fontWeight: '500' }}>{schedule.date}</span>
+                            <span style={{ marginLeft: '1rem', color: '#6b7280' }}>
                               {puzzle ? `${puzzle.movie_title} (${puzzle.emoji_plot})` : 'Unknown puzzle'}
                             </span>
                           </div>
                           <button
                             onClick={() => handleRemoveSchedule(schedule.date)}
-                            className="text-red-600 hover:text-red-800"
+                            style={{
+                              color: '#dc2626',
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '0.875rem'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.color = '#b91c1c'}
+                            onMouseLeave={(e) => e.currentTarget.style.color = '#dc2626'}
                           >
                             Remove
                           </button>
@@ -865,23 +894,111 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           )}
 
+          {/* Puzzle Preview Tab */}
+          {activeTab === 'preview' && (
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827' }}>
+                Next 7 Days - Puzzle Preview
+              </h3>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                This shows what puzzles the game logic would automatically select for the next 7 days.
+                You can override any day by scheduling a specific puzzle in the Schedule tab.
+              </p>
+              
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {puzzlePreview.map((preview) => (
+                  <div key={preview.date} style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto auto',
+                    gap: '1rem',
+                    alignItems: 'center',
+                    padding: '1rem',
+                    backgroundColor: preview.reason === 'Scheduled' ? '#f0f9ff' : '#f9fafb',
+                    border: preview.reason === 'Scheduled' ? '1px solid #0ea5e9' : '1px solid #e5e7eb',
+                    borderRadius: '0.5rem'
+                  }}>
+                    <div>
+                      <div style={{ fontWeight: '600', color: '#111827' }}>
+                        {new Date(preview.date).toLocaleDateString('en-US', { 
+                          weekday: 'long', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </div>
+                    </div>
+                    
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>
+                        {preview.puzzle.emoji_plot}
+                      </div>
+                      <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#111827' }}>
+                        {preview.puzzle.movie_title}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                        {preview.puzzle.hints.year} • {preview.puzzle.difficulty}
+                      </div>
+                    </div>
+                    
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{
+                        padding: '0.25rem 0.5rem',
+                        backgroundColor: preview.reason === 'Scheduled' ? '#0ea5e9' : '#6b7280',
+                        color: 'white',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.75rem',
+                        fontWeight: '500'
+                      }}>
+                        {preview.reason}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <button
+                onClick={generatePuzzlePreview}
+                style={{
+                  backgroundColor: '#6366f1',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.375rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5855eb'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6366f1'}
+              >
+                Refresh Preview
+              </button>
+            </div>
+          )}
+
           {/* Reset Stats Tab */}
           {activeTab === 'stats' && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Reset User Statistics</h3>
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827' }}>
+                Reset User Statistics
+              </h3>
               
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+              <div style={{
+                backgroundColor: '#fef3c7',
+                border: '1px solid #f59e0b',
+                borderRadius: '0.375rem',
+                padding: '1rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                  <div style={{ flexShrink: 0 }}>
+                    <svg style={{ width: '1.25rem', height: '1.25rem', color: '#d97706' }} viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-yellow-800">
+                  <div>
+                    <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#92400e', marginBottom: '0.5rem' }}>
                       Warning
-                    </h3>
-                    <div className="mt-2 text-sm text-yellow-700">
+                    </h4>
+                    <div style={{ fontSize: '0.875rem', color: '#92400e' }}>
                       <p>
                         This will permanently delete all user statistics and game history for the selected date. 
                         This action cannot be undone.
@@ -892,21 +1009,54 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '0.5rem'
+                }}>
                   Select Date to Reset
                 </label>
                 <input
                   type="date"
                   value={statsResetDate}
                   onChange={(e) => setStatsResetDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem'
+                  }}
                 />
               </div>
 
               <button
                 onClick={handleResetStats}
                 disabled={!statsResetDate}
-                className="w-full bg-red-600 text-white py-3 px-6 rounded-md hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                style={{
+                  width: '100%',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.375rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  opacity: !statsResetDate ? 0.5 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (statsResetDate) {
+                    e.currentTarget.style.backgroundColor = '#b91c1c';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (statsResetDate) {
+                    e.currentTarget.style.backgroundColor = '#dc2626';
+                  }
+                }}
               >
                 Reset Stats for Selected Date
               </button>
@@ -915,21 +1065,28 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
           {/* Reset User Tab */}
           {activeTab === 'user' && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold">Reset Single User</h3>
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827' }}>
+                Reset Single User
+              </h3>
               
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+              <div style={{
+                backgroundColor: '#fef3c7',
+                border: '1px solid #f59e0b',
+                borderRadius: '0.375rem',
+                padding: '1rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                  <div style={{ flexShrink: 0 }}>
+                    <svg style={{ width: '1.25rem', height: '1.25rem', color: '#d97706' }} viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-yellow-800">
+                  <div>
+                    <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#92400e', marginBottom: '0.5rem' }}>
                       Warning
-                    </h3>
-                    <div className="mt-2 text-sm text-yellow-700">
+                    </h4>
+                    <div style={{ fontSize: '0.875rem', color: '#92400e' }}>
                       <p>
                         This will permanently delete all user data for the specified user. 
                         This action cannot be undone.
@@ -940,25 +1097,48 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label style={{
+                  display: 'block',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '0.5rem'
+                }}>
                   User ID (or leave empty to reset current user)
                 </label>
                 <input
                   type="text"
                   value={userResetId}
                   onChange={(e) => setUserResetId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 0.75rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem'
+                  }}
                   placeholder="Enter user ID or leave empty for current user"
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
                   Leave empty to reset the current user's data
                 </p>
               </div>
 
               <button
                 onClick={handleResetUser}
-                disabled={!userResetId}
-                className="w-full bg-red-600 text-white py-3 px-6 rounded-md hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                style={{
+                  width: '100%',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.375rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
               >
                 Reset User Data
               </button>

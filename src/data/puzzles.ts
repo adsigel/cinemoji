@@ -280,5 +280,117 @@ export const puzzles: Puzzle[] = [
       tagline: "Seven deadly sins. Seven ways to die."
     },
     notes: "Dark thriller - seven deadly sins murders"
+  },
+  {
+    id: 21,
+    movie_title: "Apollo 13",
+    emoji_plot: "🌎🚀💥🪫🌘❌🚀🌎",
+    difficulty: "medium",
+    hints: {
+      actor1: "Tom Hanks",
+      actor2: "Bill Paxton",
+      year: "1995",
+      director: "Ron Howard",
+      tagline: "Houston, we have a problem."
+    },
+    notes: "Space disaster - NASA mission gone wrong"
+  },
+  {
+    id: 22,
+    movie_title: "The Martian",
+    emoji_plot: "🔴⛈️🚀💥😱💩🥔📡🚀🛟🌎",
+    difficulty: "medium",
+    hints: {
+      actor1: "Matt Damon",
+      actor2: "Jessica Chastain",
+      year: "2015",
+      director: "Ridley Scott",
+      tagline: "Help is only 140 million miles away."
+    },
+    notes: "Space survival - astronaut stranded on Mars"
+  },
+  {
+    id: 23,
+    movie_title: "Fight Club",
+    emoji_plot: "😕✈️😎👊🩸🏚️🧼🧨😕🔫😎❌🙂",
+    difficulty: "hard",
+    hints: {
+      actor1: "Brad Pitt",
+      actor2: "Edward Norton",
+      year: "1999",
+      director: "David Fincher",
+      tagline: "Mischief. Mayhem. Soap."
+    },
+    notes: "Underground fighting - psychological thriller"
+  },
+  {
+    id: 24,
+    movie_title: "Pretty Woman",
+    emoji_plot: "👩🏻‍🦰👨‍💼💵🛌👨‍💼💰👩🏻‍🦰🛍️🏇👨‍💼🪜💐👩🏻‍🦰👩‍❤️‍👨",
+    difficulty: "medium",
+    hints: {
+      actor1: "Julia Roberts",
+      actor2: "Richard Gere",
+      year: "1990",
+      director: "Garry Marshall",
+      tagline: "Who knew it was so much fun being a hooker?"
+    },
+    notes: "Romantic comedy - Cinderella story"
+  },
+  {
+    id: 25,
+    movie_title: "The Sandlot",
+    emoji_plot: "👦🧢🏘️⚾️🎆🎡🤮⚾️🐶🏗️👟⏩👱‍♂️🧢🎙️🏟️",
+    difficulty: "medium",
+    hints: {
+      actor1: "Tom Guiry",
+      actor2: "Mike Vitar",
+      year: "1993",
+      director: "David Mickey Evans",
+      tagline: "The Sandlot is a place where legends are made."
+    },
+    notes: "Coming of age - baseball and friendship"
+  },
+  {
+    id: 26,
+    movie_title: "The Devil Wears Prada",
+    emoji_plot: "👩🏻🗽🏢👗👩‍🦳📱☕️🧥📱☕️🧥✈️🇫🇷💔",
+    difficulty: "medium",
+    hints: {
+      actor1: "Anne Hathaway",
+      actor2: "Meryl Streep",
+      year: "2006",
+      director: "David Frankel",
+      tagline: "Meet Andy Sachs. A million girls would kill to have her job. She's not one of them."
+    },
+    notes: "Fashion industry - assistant to demanding boss"
+  },
+  {
+    id: 27,
+    movie_title: "Independence Day",
+    emoji_plot: "🌎🌞🛸🛸🛸⏱️🔥👽👊✈️🇺🇸🎆",
+    difficulty: "medium",
+    hints: {
+      actor1: "Will Smith",
+      actor2: "Jeff Goldblum",
+      year: "1996",
+      director: "Roland Emmerich",
+      tagline: "Earth. Take a good look. It might be your last."
+    },
+    notes: "Alien invasion - July 4th attack on Earth"
+  },
+  {
+    id: 28,
+    movie_title: "Groundhog Day",
+    emoji_plot: "😒🌨️⏰🤨⏰😧⏰😵⏰⛄️🎹😎👩‍❤️‍👨",
+    difficulty: "medium",
+    hints: {
+      actor1: "Bill Murray",
+      actor2: "Andie MacDowell",
+      year: "1993",
+      director: "Harold Ramis",
+      tagline: "He's having the worst day of his life... over and over."
+    },
+    notes: "Time loop comedy - repeating the same day"
   }
 ]; 

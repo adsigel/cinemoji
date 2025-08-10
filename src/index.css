@@ -4,32 +4,72 @@
 
 @layer base {
   body {
-    @apply font-game bg-gray-50 text-gray-900;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f9fafb;
+    color: #111827;
   }
 }
 
 @layer components {
   .game-container {
-    @apply max-w-md mx-auto px-4 py-6;
+    max-width: 28rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
   }
   
   .emoji-display {
-    @apply text-4xl md:text-5xl text-center p-6 bg-white rounded-2xl shadow-sm border-2 border-gray-100;
+    font-size: 2.25rem;
+    text-align: center;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 2px solid #f3f4f6;
   }
   
   .hint-button {
-    @apply flex items-center justify-center gap-2 p-3 bg-white border-2 border-gray-200 rounded-xl text-sm font-medium hover:border-movie-purple hover:bg-purple-50 transition-colors;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .hint-button:hover {
+    border-color: #6366f1;
+    background-color: #f5f3ff;
   }
   
   .hint-button:disabled {
-    @apply opacity-50 cursor-not-allowed hover:border-gray-200 hover:bg-white;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .hint-button:disabled:hover {
+    border-color: #e5e7eb;
+    background-color: white;
   }
   
   .star-display {
-    @apply text-2xl;
+    font-size: 1.5rem;
   }
   
   .game-input {
-    @apply w-full p-4 text-lg border-2 border-gray-200 rounded-xl focus:border-movie-purple focus:outline-none;
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.125rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    outline: none;
+  }
+  
+  .game-input:focus {
+    border-color: #6366f1;
   }
 }

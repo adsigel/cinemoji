@@ -2,7 +2,7 @@ import * as amplitude from '@amplitude/analytics-browser';
 import type { HintType } from '../types/game';
 
 // Use environment variable with correct source-specific API key as fallback
-const AMPLITUDE_API_KEY = process.env.VITE_AMPLITUDE_API_KEY || process.env.AMPLITUDE_API_KEY || '325dfb50ecaaacbc7314d3dacd3ceec7';
+const AMPLITUDE_API_KEY = import.meta.env.VITE_AMPLITUDE_API_KEY || '325dfb50ecaaacbc7314d3dacd3ceec7';
 
 export const initAnalytics = () => {
   if (AMPLITUDE_API_KEY) {
