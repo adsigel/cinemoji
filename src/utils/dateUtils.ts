@@ -97,16 +97,16 @@ export const getTodaysPuzzle = () => {
     }
   }
   
-  // Check if we already selected a puzzle for today
+  // FIXED: Clear any existing puzzle history for today to ensure consistency
+  // This prevents old browser tabs from showing different puzzles
   const todaysPuzzle = history.find(entry => entry.date === today);
   if (todaysPuzzle) {
-    const puzzle = allPuzzles.find(p => p.id === todaysPuzzle.puzzleId);
-    if (puzzle) {
-      return puzzle;
-    }
+    // Clear the old puzzle history for today to force new deterministic selection
+    const filteredHistory = history.filter(entry => entry.date !== today);
+    savePuzzleHistory(filteredHistory);
   }
   
-  // FIXED: Use deterministic puzzle selection that doesn't depend on localStorage state
+  // Use deterministic puzzle selection that doesn't depend on localStorage state
   // Sort puzzles by ID to ensure consistent order across all browsers
   const sortedPuzzles = [...allPuzzles].sort((a, b) => a.id - b.id);
   
