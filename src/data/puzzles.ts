@@ -392,5 +392,145 @@ export const puzzles: Puzzle[] = [
       tagline: "He's having the worst day of his life... over and over."
     },
     notes: "Time loop comedy - repeating the same day"
+  },
+  {
+    id: 29,
+    movie_title: "Jaws",
+    emoji_plot: "🏖️🏊‍♀️🦈👦🦈😱🚤💣🦈💥",
+    difficulty: "easy",
+    hints: {
+      actor1: "Roy Scheider",
+      actor2: "Robert Shaw",
+      year: "1975",
+      director: "Steven Spielberg",
+      tagline: "The terrifying motion picture from the terrifying No. 1 best seller."
+    },
+    notes: "Classic shark thriller - beach, swimming, shark attacks"
+  },
+  {
+    id: 30,
+    movie_title: "Jurassic Park",
+    emoji_plot: "🦟🥶🚁📽️🧬🛻🦕💩⛈️🦖😱🏃‍♂️🏃‍♀️🦖⚡️🚁😅",
+    difficulty: "medium",
+    hints: {
+      actor1: "Sam Neill",
+      actor2: "Laura Dern",
+      year: "1993",
+      director: "Steven Spielberg",
+      tagline: "An adventure 65 million years in the making."
+    },
+    notes: "Dinosaur theme park - DNA, dinosaurs, chaos"
+  },
+  {
+    id: 31,
+    movie_title: "Home Alone",
+    emoji_plot: "🎄🧑‍🧑‍🧒‍🧒🧑‍🧑‍🧒‍🧒😤🛌🏠✈️😱🦹‍♂️🦹‍♂️🪤🔥🔨🕷️🧼🪜🚓🎄",
+    difficulty: "medium",
+    hints: {
+      actor1: "Macaulay Culkin",
+      actor2: "Joe Pesci",
+      year: "1990",
+      director: "Chris Columbus",
+      tagline: "A family comedy without the family."
+    },
+    notes: "Christmas comedy - kid left alone, burglars, traps"
+  },
+  {
+    id: 32,
+    movie_title: "Avatar",
+    emoji_plot: "🚀🌌🪐🌴🦋👽🤝👩‍❤️‍👨⚔️🔥🌳💥",
+    difficulty: "medium",
+    hints: {
+      actor1: "Sam Worthington",
+      actor2: "Zoe Saldaña",
+      year: "2009",
+      director: "James Cameron",
+      tagline: "Enter the world of Pandora."
+    },
+    notes: "Sci-fi epic - alien world, blue people, nature vs technology"
+  },
+  {
+    id: 33,
+    movie_title: "The Social Network",
+    emoji_plot: "⚖️🎓💻👨‍💻🍺💡💻👥🚣📈💰⚖️💔",
+    difficulty: "hard",
+    hints: {
+      actor1: "Jesse Eisenberg",
+      actor2: "Andrew Garfield",
+      year: "2010",
+      director: "David Fincher",
+      tagline: "You don't get to 500 million friends without making a few enemies."
+    },
+    notes: "Facebook origin story - college, coding, legal battles"
+  },
+  {
+    id: 34,
+    movie_title: "Mad Max: Fury Road",
+    emoji_plot: "🏜️🚗💨🔫🛻🔥🚗💥🚗🏜️",
+    difficulty: "medium",
+    hints: {
+      actor1: "Tom Hardy",
+      actor2: "Charlize Theron",
+      year: "2015",
+      director: "George Miller",
+      tagline: "The future belongs to the mad."
+    },
+    notes: "Post-apocalyptic action - desert, cars, explosions"
+  },
+  {
+    id: 35,
+    movie_title: "The Revenant",
+    emoji_plot: "❄️🦌🔫🩸🐻🩸😵🛷🏞️🏹",
+    difficulty: "hard",
+    hints: {
+      actor1: "Leonardo DiCaprio",
+      actor2: "Tom Hardy",
+      year: "2015",
+      director: "Alejandro González Iñárritu",
+      tagline: "Blood lost. Life found."
+    },
+    notes: "Survival drama - winter, bear attack, revenge"
+  },
+  {
+    id: 36,
+    movie_title: "Get Out",
+    emoji_plot: "🚗👩🏿‍🦱👨🏻‍🦱🏡🥂😬🌀🪑👀🧠🔪🚨",
+    difficulty: "medium",
+    hints: {
+      actor1: "Daniel Kaluuya",
+      actor2: "Allison Williams",
+      year: "2017",
+      director: "Jordan Peele",
+      tagline: "Just because you're invited, doesn't mean you're welcome."
+    },
+    notes: "Horror thriller - racism, hypnosis, psychological horror"
+  },
+  {
+    id: 37,
+    movie_title: "Raiders of the Lost Ark",
+    emoji_plot: "🏺🪨✈️🥃🌴🐍🪏🌞🏛️✈️🔫📦🫠",
+    difficulty: "medium",
+    hints: {
+      actor1: "Harrison Ford",
+      actor2: "Karen Allen",
+      year: "1981",
+      director: "Steven Spielberg",
+      tagline: "The return of the great adventure."
+    },
+    notes: "Adventure classic - archaeologist, artifacts, Nazis"
+  },
+  {
+    id: 38,
+    movie_title: "Top Gun",
+    emoji_plot: "🛩️🕶️🔥💑🏐🎶🛩️💥🏆",
+    difficulty: "easy",
+    hints: {
+      actor1: "Tom Cruise",
+      actor2: "Kelly McGillis",
+      year: "1986",
+      director: "Tony Scott",
+      tagline: "Up there with the best of the best."
+    },
+    notes: "Military aviation - fighter pilots, romance, competition"
   }
 ]; 

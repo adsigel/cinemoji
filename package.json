@@ -13,6 +13,7 @@
     "@amplitude/analytics-browser": "^2.22.0",
     "@tailwindcss/postcss": "^4.1.11",
     "axios": "^1.11.0",
+    "node-fetch": "^3.3.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

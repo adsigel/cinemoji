@@ -19,6 +19,25 @@ export interface MovieSuggestion {
   originalTitle: string; // "Jurassic Park"
 }
 
+export interface TMDbMovieDetails {
+  id: number;
+  title: string;
+  release_date: string;
+  tagline: string;
+  credits: {
+    cast: Array<{
+      name: string;
+      character: string;
+      order: number;
+    }>;
+    crew: Array<{
+      name: string;
+      job: string;
+      department: string;
+    }>;
+  };
+}
+
 // Helper function to normalize search queries for better matching
 const normalizeQuery = (query: string): string => {
   let normalized = query.trim();
@@ -158,6 +177,41 @@ export async function searchMovies(query: string): Promise<MovieSuggestion[]> {
   } catch (error) {
     console.error('Error searching movies:', error);
     return [];
+  }
+}
+
+export async function getMovieDetails(movieId: number): Promise<TMDbMovieDetails | null> {
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/movie/${movieId}?append_to_response=credits&language=en-US`,
+      {
+        headers: {
+          'Authorization': `Bearer ${TMDB_READ_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error(`TMDb API error for movie ${movieId}:`, response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    
+    return {
+      id: data.id,
+      title: data.title,
+      release_date: data.release_date,
+      tagline: data.tagline || '',
+      credits: {
+        cast: data.credits?.cast || [],
+        crew: data.credits?.crew || []
+      }
+    };
+  } catch (error) {
+    console.error('Error getting movie details:', error);
+    return null;
   }
 }
 
