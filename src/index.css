@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f9fafb;
+    color: #111827;
+  }
+}
+
+@layer components {
+  .game-container {
+    max-width: 28rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+  }
+  
+  .emoji-display {
+    font-size: 2.25rem;
+    text-align: center;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 2px solid #f3f4f6;
+  }
+  
+  .hint-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .hint-button:hover {
+    border-color: #6366f1;
+    background-color: #f5f3ff;
+  }
+  
+  .hint-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .hint-button:disabled:hover {
+    border-color: #e5e7eb;
+    background-color: white;
+  }
+  
+  .star-display {
+    font-size: 1.5rem;
+  }
+  
+  .game-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.125rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    outline: none;
+  }
+  
+  .game-input:focus {
+    border-color: #6366f1;
+  }
+}

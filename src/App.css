@@ -1,0 +1,30 @@
+/* Minimal custom styles - most styling handled by Tailwind */
+
+.game-container {
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+/* Ensure emojis render consistently */
+.emoji-display {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', emoji;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+}
+
+/* Star display styling */
+.star-display {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* Hint button hover effects */
+.hint-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Input focus states */
+.game-input:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
